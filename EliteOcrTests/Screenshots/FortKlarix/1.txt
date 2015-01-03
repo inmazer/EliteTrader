@@ -1,0 +1,177 @@
+{
+  "StationName": "FORT KLARIX",
+  "Description": {
+    "Wealth": 1,
+    "Population": 3,
+    "Economy": 1,
+    "Allegance": 4,
+    "Government": 1
+  },
+  "Items": [
+    {
+      "Name": 5,
+      "RareName": null,
+      "Sell": 340,
+      "Buy": null,
+      "Demand": 1197,
+      "DemandStatus": 1,
+      "Supply": null,
+      "SupplyStatus": 0,
+      "GalacticAverage": 395
+    },
+    {
+      "Name": 6,
+      "RareName": null,
+      "Sell": 7367,
+      "Buy": null,
+      "Demand": 102,
+      "DemandStatus": 3,
+      "Supply": null,
+      "SupplyStatus": 0,
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": 7,
+      "RareName": null,
+      "Sell": 561,
+      "Buy": null,
+      "Demand": 649,
+      "DemandStatus": 1,
+      "Supply": null,
+      "SupplyStatus": 0,
+      "GalacticAverage": 631
+    },
+    {
+      "Name": 8,
+      "RareName": null,
+      "Sell": 39,
+      "Buy": 53,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 893,
+      "SupplyStatus": 2,
+      "GalacticAverage": 200
+    },
+    {
+      "Name": 9,
+      "RareName": null,
+      "Sell": 1239,
+      "Buy": 1271,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 26,
+      "SupplyStatus": 1,
+      "GalacticAverage": 1460
+    },
+    {
+      "Name": 10,
+      "RareName": null,
+      "Sell": 1239,
+      "Buy": 1271,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 13,
+      "SupplyStatus": 1,
+      "GalacticAverage": 1460
+    },
+    {
+      "Name": 11,
+      "RareName": null,
+      "Sell": 312,
+      "Buy": 327,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 190,
+      "SupplyStatus": 2,
+      "GalacticAverage": 493
+    },
+    {
+      "Name": 13,
+      "RareName": null,
+      "Sell": 223,
+      "Buy": 239,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 12414,
+      "SupplyStatus": 2,
+      "GalacticAverage": 395
+    },
+    {
+      "Name": 14,
+      "RareName": null,
+      "Sell": 122,
+      "Buy": 136,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 20747,
+      "SupplyStatus": 2,
+      "GalacticAverage": 275
+    },
+    {
+      "Name": 16,
+      "RareName": null,
+      "Sell": 1412,
+      "Buy": 1447,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 10,
+      "SupplyStatus": 1,
+      "GalacticAverage": 1646
+    },
+    {
+      "Name": 200,
+      "RareName": "UTGAROAR MILLENNIAL EGGS",
+      "Sell": 897,
+      "Buy": null,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": null,
+      "SupplyStatus": 0,
+      "GalacticAverage": 9163
+    },
+    {
+      "Name": 20,
+      "RareName": null,
+      "Sell": 87,
+      "Buy": 102,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 5363,
+      "SupplyStatus": 2,
+      "GalacticAverage": 240
+    },
+    {
+      "Name": 21,
+      "RareName": null,
+      "Sell": 536,
+      "Buy": 559,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 73,
+      "SupplyStatus": 2,
+      "GalacticAverage": 738
+    },
+    {
+      "Name": 22,
+      "RareName": null,
+      "Sell": 78,
+      "Buy": 91,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 459,
+      "SupplyStatus": 3,
+      "GalacticAverage": 240
+    },
+    {
+      "Name": 23,
+      "RareName": null,
+      "Sell": 4601,
+      "Buy": 4653,
+      "Demand": null,
+      "DemandStatus": 0,
+      "Supply": 2472,
+      "SupplyStatus": 2,
+      "GalacticAverage": 5088
+    }
+  ]
+}
