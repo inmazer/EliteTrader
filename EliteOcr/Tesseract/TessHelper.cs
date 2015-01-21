@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
-using EliteTrader.EliteOcr.Interfaces;
 using ImageMagick;
 using Tesseract;
 
@@ -44,21 +41,20 @@ namespace EliteTrader.EliteOcr.Tesseract
             }
         }
 
-        public static string MajorityVoteString(string[] results)
+        public static string MajorityVoteString(List<string> results)
         {
-            if (results.Length == 0)
+            if (results.Count == 0)
             {
                 return null;
             }
-            if (results.Length < 3)
+            if (results.Count < 3)
             {
                 return results[0];
             }
 
             Dictionary<string, int> votes = new Dictionary<string, int>();
-            for (int i = 0; i < results.Length; ++i)
+            foreach (string result in results)
             {
-                string result = results[i];
                 int value;
                 if (votes.TryGetValue(result, out value))
                 {
@@ -73,15 +69,15 @@ namespace EliteTrader.EliteOcr.Tesseract
             return votes.OrderByDescending(a => a.Value).First().Key;
         }
 
-        public static string[] Process(TesseractEngine engine, Bitmap bitmap, string whitelist, string identifier, int attempts)
+        public static List<string> Process(TesseractEngine engine, Bitmap bitmap, string whitelist, string identifier, int samples, bool mustHaveValue)
         {
             engine.DefaultPageSegMode = PageSegMode.SingleLine;
             SetVariable(engine, "tessedit_char_whitelist", whitelist);
+            List<string> results = new List<string>();
             using (MagickImage image = new MagickImage(bitmap))
             {
                 string firstResult = null;
-                string[] results = new string[attempts];
-                for (int i = 0; i < attempts; ++i)
+                for (int i = 0; i < samples; ++i)
                 {
                     image.Alpha(AlphaOption.Off);
                     image.Format = MagickFormat.Tif;
@@ -90,7 +86,12 @@ namespace EliteTrader.EliteOcr.Tesseract
                     using (Page page = engine.Process(newBitmap))
                     {
                         string str = page.GetText().Trim();
-                        results[i] = str;
+                        if (string.IsNullOrEmpty(str))
+                        {
+                            image.Resize(150);
+                            continue;
+                        }
+                        results.Add(str);
 
                         if (i == 0)
                         {
@@ -107,105 +108,35 @@ namespace EliteTrader.EliteOcr.Tesseract
 
                     image.Resize(150);
                 }
-                return results;
             }
-        }
-
-        private static readonly List<string> StaticWords = new List<string>
-        {
-            "CR",
-            "MED",
-            "LOW",
-            "HIGH",
-            "STATION",
-            "STARPORT",
-            "CORIOLIS",
-            "OCELLUS",
-            "O'NEILL",
-            "ORBIS",
-            "OUTPOST",
-            "CIVILIAN",
-            "COMMERCIAL",
-            "MILITARY",
-            "MINING",
-            "SCIENTIFIC",
-            "UNSANCTIONED",
-            "ALLIANCE",
-            "EMPIRE",
-            "FEDERATION",
-            "INDEPENDENT",
-            "POOR",
-            "RICH",
-            "ANARCHY",
-            "COLONY",
-            "COMMUNISM",
-            "CONFEDERACY",
-            "COOPERATIVE",
-            "CORPORATE",
-            "DEMOCRACY",
-            "DICTATORSHIP",
-            "FEUDAL",
-            "IMPERIAL",
-            "NONE",
-            "PATRONAGE",
-            "PRISON",
-            "COLONY",
-            "THEOCRACY",
-            "AGRICULTURAL",
-            "EXTRACTION",
-            "TECH",
-            "INDUSTRIAL",
-            "MILITARY",
-            "REFINERY",
-            "SERVICE",
-            "TERRAFORMING",
-            "TOURISM",
-            "LARGE",
-            "POPULATION",
-            "AGRICULTURE",
-            "ECONOMY",
-            //"JAN",
-            //"FEB",
-            //"MAR",
-            //"APR",
-            //"MAY",
-            //"JUN",
-            //"JUL",
-            //"AUG",
-            //"SEP",
-            //"OCT",
-            //"NOV",
-            //"DEC",
-        };
-
-        public static void UpdateDictionary(string dictionaryPath, ICommodityNameRepository commodityNameRepository)
-        {
-            List<string> commodityNames = commodityNameRepository.GetAllCommodityNames();
-
-            using (FileStream fs = new FileStream(dictionaryPath, FileMode.Create))
-            using (StreamWriter sw = new StreamWriter(fs, Encoding.ASCII))
+            if (mustHaveValue && results.Count == 0)
             {
-                sw.NewLine = "\n";
-                StaticWords.ForEach(a => sw.WriteLine(a));
-
-                foreach (string commodityName in commodityNames)
+                //Keep going until we get something or a ridiculous number of attempt is reached
+                using (MagickImage image = new MagickImage(bitmap))
                 {
-                    foreach (string word in commodityName.Trim().Split(' '))
+                    for (int i = 0; i < 50; ++i)
                     {
-                        string trimmedWord = word.Trim();
-                        if (string.IsNullOrEmpty(trimmedWord))
+                        image.Alpha(AlphaOption.Off);
+                        image.Format = MagickFormat.Tif;
+                        image.ChangeColorSpace(ColorSpace.GRAY);
+                        using (Bitmap newBitmap = image.ToBitmap())
+                        using (Page page = engine.Process(newBitmap))
                         {
-                            continue;
+                            string str = page.GetText().Trim();
+                            if (string.IsNullOrEmpty(str))
+                            {
+                                image.Resize(105);
+                                continue;
+                            }
+                            results.Add(str);
+
+                            return results;
                         }
-                        int n;
-                        if (int.TryParse(trimmedWord, out n))
-                        {
-                            continue;
-                        }
-                        sw.WriteLine(trimmedWord);
                     }
                 }
+                throw new Exception(string.Format("Got no valid results when doing ocr on ({0})", identifier));
             }
+            return results;
         }
     }
 }

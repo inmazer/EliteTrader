@@ -1,0 +1,178 @@
+{
+  "StationName": "MOZHAYSKY GATEWAY",
+  "Description": {
+    "Wealth": "Normal",
+    "Population": "Large",
+    "PrimaryEconomy": "Industrial",
+    "SecondaryEconomy": null,
+    "Allegiance": "Empire",
+    "Government": "Corporate"
+  },
+  "Items": [
+    {
+      "Name": "ProgenitorCells",
+      "RareName": null,
+      "Sell": 7553,
+      "Buy": null,
+      "Demand": 1032,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "Aluminium",
+      "RareName": null,
+      "Sell": 428,
+      "Buy": null,
+      "Demand": 275125,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 412
+    },
+    {
+      "Name": "Beryllium",
+      "RareName": null,
+      "Sell": 9032,
+      "Buy": null,
+      "Demand": 102273,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 8549
+    },
+    {
+      "Name": "Cobalt",
+      "RareName": null,
+      "Sell": 760,
+      "Buy": null,
+      "Demand": 33102,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 823
+    },
+    {
+      "Name": "Copper",
+      "RareName": null,
+      "Sell": 620,
+      "Buy": null,
+      "Demand": 446838,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 570
+    },
+    {
+      "Name": "Gallium",
+      "RareName": null,
+      "Sell": 5650,
+      "Buy": null,
+      "Demand": 63559,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 5426
+    },
+    {
+      "Name": "Gold",
+      "RareName": null,
+      "Sell": 9845,
+      "Buy": null,
+      "Demand": 9738,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 9742
+    },
+    {
+      "Name": "Indium",
+      "RareName": null,
+      "Sell": 6131,
+      "Buy": null,
+      "Demand": 20108,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 6175
+    },
+    {
+      "Name": "Lithium",
+      "RareName": null,
+      "Sell": 1916,
+      "Buy": null,
+      "Demand": 368351,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1749
+    },
+    {
+      "Name": "Palladium",
+      "RareName": null,
+      "Sell": 14332,
+      "Buy": null,
+      "Demand": 76932,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 13527
+    },
+    {
+      "Name": "Platinum",
+      "RareName": null,
+      "Sell": 19830,
+      "Buy": null,
+      "Demand": 5758,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 18814
+    },
+    {
+      "Name": "Silver",
+      "RareName": null,
+      "Sell": 5401,
+      "Buy": null,
+      "Demand": 22383,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 5088
+    },
+    {
+      "Name": "Tantalum",
+      "RareName": null,
+      "Sell": 4478,
+      "Buy": null,
+      "Demand": 43846,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 4196
+    },
+    {
+      "Name": "Titanium",
+      "RareName": null,
+      "Sell": 1130,
+      "Buy": null,
+      "Demand": 79521,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1154
+    },
+    {
+      "Name": "Uranium",
+      "RareName": null,
+      "Sell": 3097,
+      "Buy": null,
+      "Demand": 291514,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 2869
+    }
+  ]
+}

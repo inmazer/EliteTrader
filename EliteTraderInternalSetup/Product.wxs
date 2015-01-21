@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define vcredist_x86 = http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x86.exe ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <?include $(sys.CURRENTDIR)Includes\Defines.wxi ?>
+	<Product Id="*" Name="Elite Trader" Language="1033" Version="$(var.VersionNumber)" Manufacturer="iNMazer" UpgradeCode="$(var.UpgradeCode)">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" InstallPrivileges="elevated" />
+		<MediaTemplate EmbedCab="yes" />
+    <Upgrade Id="$(var.UpgradeCode)">
+      <UpgradeVersion OnlyDetect="yes" Minimum="$(var.VersionNumber)" IncludeMinimum="no" Property="NEWER_VERSION_FOUND" />
+      <UpgradeVersion Minimum="0.0.0.0" IncludeMinimum="yes" Maximum="$(var.VersionNumber)" IncludeMaximum="no" MigrateFeatures="yes" Property="OLDER_VERSION_FOUND" />
+    </Upgrade>
+    <PropertyRef Id="NETFRAMEWORK45" />
+    <Condition Message="Microsoft .Net Framework 4.5 is required"><![CDATA[Installed OR NETFRAMEWORK45]]></Condition>
+    <Condition Message="Windows version is too low, please upgrade to at least Windows 7"><![CDATA[Installed OR (VersionNT >= 601)]]></Condition>
+    <Condition Message="You need to be an administrator to install this product.">Privileged</Condition>
+
+    <InstallExecuteSequence>
+      <StopServices>VersionNT</StopServices>
+      <RemoveExistingProducts After="InstallInitialize" />
+      <DeleteServices>VersionNT AND REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</DeleteServices>
+      <InstallServices>VersionNT AND NOT OLDER_VERSION_FOUND</InstallServices>
+      <StartServices>VersionNT</StartServices>
+    </InstallExecuteSequence>
+      
+    <UI Id="WixUI_FeatureTreeCustom">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <Property Id="WixUI_Mode" Value="FeatureTree" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="CustomizeDlg">1</Publish>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="1">Installed</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">&amp;ProductFeature=3</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+      <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="ChangeButton" Event="NewDialog" Value="CustomizeDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+    </UI>
+    <UIRef Id="WixUI_Common" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+    <Icon Id="AppIcon" SourceFile="$(var.SolutionDir)\EliteTrader\Icons\elitetrader_icon.ico"/>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="EliteTrader" Name="Elite Trader"/>
+        
+      </Directory>
+      <!-- Step 1: Define the directory structure -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Elite Trader"/>
+      </Directory>
+    </Directory>
+
+    <!--<DirectoryRef Id="EliteTrader">
+      <Component Id="EliteTrader.exe" Guid="514F9BD2-36EF-4EBD-ACAA-2AFC13B350AA">
+        <File Id="EliteTrader.exe" Source="EliteTrader.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+    </DirectoryRef>-->
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="22FB7519-5DDE-4FEC-A5E1-2D2948DF5167">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+             Name="Elite Trader"
+            Target="[#filA0B1D7E32293A3745B119C2097837DED]"
+                  WorkingDirectory="EliteTrader"/>
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\EliteTrader" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="EliteTrader">
+      <Component Id="ProductHolder" Guid="17089442-FC8A-431F-81C6-C2C744EA901C">
+        <CreateFolder />
+      </Component>
+    </DirectoryRef>
+    
+    <!--<Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+
+          <Directory Id="EliteTrader" Name="Elite Trader">
+            <Component Id="ProductHolder" Guid="17089442-FC8A-431F-81C6-C2C744EA901C">
+              <CreateFolder />
+            </Component>
+          </Directory>
+      </Directory>
+    </Directory>-->
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
+
+    <Feature Id="ProductFeature" Title="Elite Trader" Absent="disallow">
+      <ComponentRef Id="ProductHolder" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentGroupRef Id="EliteTraderBinaries" />
+
+    </Feature>
+	</Product>
+</Wix>

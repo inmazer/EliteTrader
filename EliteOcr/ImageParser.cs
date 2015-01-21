@@ -11,8 +11,33 @@ namespace EliteTrader.EliteOcr
 {
     public static class ImageParser
     {
+        private const int NumberOfInterestingPixelsThreshold = 25;
+
+        private static readonly Guid BmpRawTypeId = Guid.Parse("b96b3cab-0728-11d3-9d7b-0000f81ef32e");
+
+        public static Bitmap ParseClock(Bitmap screenshot)
+        {
+            screenshot = ConvertToBmpBitmap(screenshot);
+
+            int screenshotWidth = screenshot.Width;
+            int screenshotHeight = screenshot.Height;
+
+            int clockAreaX = (screenshotWidth * 1705) / 1920;
+            int clockAreaWidth = ((screenshotWidth * 1839) / 1920) - clockAreaX;
+            int clockAreaY = (screenshotHeight * 68) / 1080;
+            int clockAreaHeight = ((screenshotHeight * 96) / 1080) - clockAreaY;
+
+            Bitmap clockBitmap = GetArea(new Rectangle(clockAreaX, clockAreaY, clockAreaWidth, clockAreaHeight), screenshot, EnumTextSharpeningAlgorithm.Time);
+
+            return clockBitmap;
+        }
+
         public static ParsedScreenshotBitmaps Parse(Bitmap screenshot)
         {
+            screenshot = ConvertToBmpBitmap(screenshot);
+
+            Bitmap clockBitmap = ParseClock(screenshot);
+
             int screenshotWidth = screenshot.Width;
             int screenshotHeight = screenshot.Height;
 
@@ -35,8 +60,29 @@ namespace EliteTrader.EliteOcr
             //Bitmap timestampBitmap = GetArea(new Rectangle(timeAreaX, timeAreaY, timeAreaWidth, timeAreaHeight), screenshot, EnumTextSharpeningAlgorithm.Time);
 
             List<CommodityItemBitmaps> itemBitmapsList = GetCommodityItemBitmaps(screenshot);
-            
-            return new ParsedScreenshotBitmaps(nameBitmap, descriptionBitmap, itemBitmapsList);
+
+            return new ParsedScreenshotBitmaps(clockBitmap, nameBitmap, descriptionBitmap, itemBitmapsList);
+        }
+
+        private static Bitmap ConvertToBmpBitmap(Bitmap bitmap)
+        {
+            if (bitmap.RawFormat.Guid == BmpRawTypeId)
+            {
+                return bitmap;
+            }
+
+            MemoryStream ms = new MemoryStream();
+            bitmap.Save(ms, ImageFormat.Bmp);
+            ms.Position = 0;
+
+            Bitmap converted = new Bitmap(ms);
+
+            if (converted.RawFormat.Guid != BmpRawTypeId)
+            {
+                throw new Exception(string.Format("Unable to create Bitmap in bmp format from the provided screenshot"));
+            }
+
+            return converted;
         }
 
         private static List<CommodityItemBitmaps> GetCommodityItemBitmaps(Bitmap screenshot)
@@ -47,11 +93,11 @@ namespace EliteTrader.EliteOcr
             Marshal.Copy(screenshotData.Scan0, screenshotBuffer, 0, screenshotBuffer.Length);
             screenshot.UnlockBits(screenshotData);
 
-            //Find row alignment by searching down from 345,350
-            int searchStartX = (screenshot.Width * 1270) / 1920;
+            //Find row alignment by searching down using average pixel values from 420 - 1270, 600
+            int searchStartX = (screenshot.Width * 420) / 1920;
+            int searchEndX = (screenshot.Width * 1270) / 1920;
             int searchStartY = (screenshot.Height * 600) / 1080;
-
-            int sourceRed, sourceGreen, sourceBlue;
+            int numberOfPixelsPerLine = (screenshot.Width * (searchEndX - searchStartX)) / 1920;
 
             int middleRowStart = -1;
             bool hasSeenBetweenRowPixel = false;
@@ -59,17 +105,62 @@ namespace EliteTrader.EliteOcr
             int startPixel = (searchStartY * rowLength) + (searchStartX * 4);
             int endPixel = startPixel + (100 * rowLength);
 
-            for (int i = startPixel; i < endPixel; i += rowLength)
-            {
-                sourceBlue = screenshotBuffer[i];
-                sourceGreen = screenshotBuffer[i + 1];
-                sourceRed = screenshotBuffer[i + 2];
+            //Console.WriteLine("Search start y: {0}", searchStartY);
 
-                bool pixelIsInRow = sourceRed >= 30 && sourceBlue + sourceGreen + sourceRed >= 60;
+            for (int y = startPixel; y < endPixel; y += rowLength)
+            {
+                List<byte> adjustedRedSamples = new List<byte>();
+                //List<byte> averageGreen = new List<byte>();
+                //List<byte> averageBlue = new List<byte>();
+                int numberOfSkippedPixels = 0;
+                for (int x = y; x < y + (numberOfPixelsPerLine * 4); x += 4)
+                {
+                    int realX = (x%rowLength)/4;
+                    if ((realX >= (screenshot.Width*440)/1920 && realX <= (screenshot.Width*447)/1920) ||
+                        (realX >= (screenshot.Width*529)/1920 && realX <= (screenshot.Width*536)/1920) ||
+                        (realX >= (screenshot.Width*616)/1920 && realX <= (screenshot.Width*623)/1920) ||
+                        (realX >= (screenshot.Width*709)/1920 && realX <= (screenshot.Width*716)/1920) ||
+                        (realX >= (screenshot.Width*892)/1920 && realX <= (screenshot.Width*899)/1920) ||
+                        (realX >= (screenshot.Width*1094)/1920 && realX <= (screenshot.Width*1101)/1920))
+                    {
+                        ++numberOfSkippedPixels;
+                        continue;
+                    }
+
+                    byte red = screenshotBuffer[x + 2];
+                    byte green = screenshotBuffer[x + 1];
+                    byte blue = screenshotBuffer[x];
+
+                    byte averageGreenBlue = Convert.ToByte(((int)green + blue)/2); //Let the average of green and blue represent white light
+
+                    red = (byte)Math.Max(red - averageGreenBlue, 0);
+                    adjustedRedSamples.Add(red);
+                    //averageGreen.Add(screenshotBuffer[x + 1]);
+                    //averageBlue.Add(screenshotBuffer[x]);
+                }
+                //int adjustedNumberOfPixelsPerLine = numberOfPixelsPerLine - numberOfSkippedPixels;
+
+                adjustedRedSamples.Sort();
+                //averageGreen.Sort();
+                //averageBlue.Sort();
+
+                //averageRed = averageRed / adjustedNumberOfPixelsPerLine;
+                //averageGreen = averageGreen / adjustedNumberOfPixelsPerLine;
+                //averageBlue = averageBlue / adjustedNumberOfPixelsPerLine;
+
+                byte medianRed = adjustedRedSamples[adjustedRedSamples.Count/2];
+                //byte medianGreen = averageGreen[adjustedRedSamples.Count / 2];
+                //byte medianBlue = averageBlue[adjustedRedSamples.Count / 2];
+
+                //Console.WriteLine(medianRed);
+
+                //bool pixelIsInRow = averageRed >= 30 && averageBlue + averageGreen + averageRed >= 60;
+                //bool pixelIsInRow = medianRed >= 30 && medianGreen + medianBlue + medianRed >= 60;
+                bool pixelIsInRow = medianRed >= 10;
                 if (hasSeenBetweenRowPixel && pixelIsInRow)
                 {
                     //This is the first pixel of a row
-                    middleRowStart = i / (screenshot.Width * 4);
+                    middleRowStart = y / (screenshot.Width * 4);
                     break;
                 }
                 if (!pixelIsInRow)
@@ -104,7 +195,7 @@ namespace EliteTrader.EliteOcr
             int galacticAverageXOffset = ((screenshot.Width * 1100) / 1920) * 4;
             int galacticAverageWidth = ((screenshot.Width * 183) / 1920);
 
-            int capturedItemHeight = itemHeight - 10; //Reduce the height of the captured area by 8 pixels to avoid interference from the lines between the items
+            int capturedItemHeight = itemHeight - 10; //Reduce the height of the captured area by 10 pixels to avoid interference from the lines between the items
 
             byte[] commodityName = new byte[capturedItemHeight * commodityNameWidth * 4];
             byte[] sellPrice = new byte[capturedItemHeight * sellPriceWidth * 4];
@@ -118,7 +209,7 @@ namespace EliteTrader.EliteOcr
             {
                 int thisItemY = firstItemY + (i * itemHeight);
 
-                if (thisItemY < 237)
+                if (thisItemY < 240)
                 {
                     continue; //The item is too high
                 }
@@ -331,7 +422,7 @@ namespace EliteTrader.EliteOcr
                     {
                         return null;
                     }
-                    if (numberOfInterestingPixels < 22)
+                    if (numberOfInterestingPixels < NumberOfInterestingPixelsThreshold)
                     {
                         return null;
                     }

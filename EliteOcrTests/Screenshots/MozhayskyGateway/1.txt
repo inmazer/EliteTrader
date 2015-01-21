@@ -1,0 +1,167 @@
+{
+  "StationName": "MOZHAYSKY GATEWAY",
+  "Description": {
+    "Wealth": "Normal",
+    "Population": "Large",
+    "PrimaryEconomy": "Industrial",
+    "SecondaryEconomy": null,
+    "Allegiance": "Empire",
+    "Government": "Corporate"
+  },
+  "Items": [
+    {
+      "Name": "Polymers",
+      "RareName": null,
+      "Sell": 278,
+      "Buy": null,
+      "Demand": 686738,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 216
+    },
+    {
+      "Name": "Semiconductors",
+      "RareName": null,
+      "Sell": 1165,
+      "Buy": null,
+      "Demand": 92162,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1029
+    },
+    {
+      "Name": "Superconductors",
+      "RareName": null,
+      "Sell": 7467,
+      "Buy": null,
+      "Demand": 60429,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "Beer",
+      "RareName": null,
+      "Sell": 290,
+      "Buy": null,
+      "Demand": 41211,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 240
+    },
+    {
+      "Name": "Liquor",
+      "RareName": null,
+      "Sell": 512,
+      "Buy": 537,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 305,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 738
+    },
+    {
+      "Name": "Wine",
+      "RareName": null,
+      "Sell": 382,
+      "Buy": null,
+      "Demand": 26486,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 324
+    },
+    {
+      "Name": "AtmosphericProcessors",
+      "RareName": null,
+      "Sell": 256,
+      "Buy": 270,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 42517,
+      "SupplyStatus": "High",
+      "GalacticAverage": 493
+    },
+    {
+      "Name": "CropHarvesters",
+      "RareName": null,
+      "Sell": 1834,
+      "Buy": 1867,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 27770,
+      "SupplyStatus": "High",
+      "GalacticAverage": 2378
+    },
+    {
+      "Name": "MarineEquipment",
+      "RareName": null,
+      "Sell": 3695,
+      "Buy": 3759,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 184359,
+      "SupplyStatus": "High",
+      "GalacticAverage": 4474
+    },
+    {
+      "Name": "MineralExtractors",
+      "RareName": null,
+      "Sell": 432,
+      "Buy": 453,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 65326,
+      "SupplyStatus": "High",
+      "GalacticAverage": 700
+    },
+    {
+      "Name": "PowerGenerators",
+      "RareName": null,
+      "Sell": 356,
+      "Buy": 374,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 481363,
+      "SupplyStatus": "High",
+      "GalacticAverage": 631
+    },
+    {
+      "Name": "WaterPurifiers",
+      "RareName": null,
+      "Sell": 183,
+      "Buy": 197,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 12739,
+      "SupplyStatus": "High",
+      "GalacticAverage": 378
+    },
+    {
+      "Name": "BasicMedicines",
+      "RareName": null,
+      "Sell": 181,
+      "Buy": 195,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 54110,
+      "SupplyStatus": "High",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "PerformanceEnhancers",
+      "RareName": null,
+      "Sell": 7553,
+      "Buy": null,
+      "Demand": 5415,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    }
+  ]
+}

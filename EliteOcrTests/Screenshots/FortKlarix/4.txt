@@ -1,0 +1,178 @@
+{
+  "StationName": "FORT KLARIX",
+  "Description": {
+    "Wealth": "Poor",
+    "Population": "Large",
+    "PrimaryEconomy": "Agricultural",
+    "SecondaryEconomy": null,
+    "Allegiance": "Independent",
+    "Government": "Anarchy"
+  },
+  "Items": [
+    {
+      "Name": "Beer",
+      "RareName": null,
+      "Sell": 87,
+      "Buy": 102,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 5363,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 240
+    },
+    {
+      "Name": "Liquor",
+      "RareName": null,
+      "Sell": 536,
+      "Buy": 559,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 73,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 738
+    },
+    {
+      "Name": "Narcotics",
+      "RareName": null,
+      "Sell": 78,
+      "Buy": 91,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 459,
+      "SupplyStatus": "High",
+      "GalacticAverage": 240
+    },
+    {
+      "Name": "Tobacco",
+      "RareName": null,
+      "Sell": 4601,
+      "Buy": 4653,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 2472,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 5088
+    },
+    {
+      "Name": "Wine",
+      "RareName": null,
+      "Sell": 167,
+      "Buy": 179,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 3202,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 324
+    },
+    {
+      "Name": "AtmosphericProcessors",
+      "RareName": null,
+      "Sell": 432,
+      "Buy": null,
+      "Demand": 926,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 493
+    },
+    {
+      "Name": "CropHarvesters",
+      "RareName": null,
+      "Sell": 2233,
+      "Buy": null,
+      "Demand": 3302,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 2378
+    },
+    {
+      "Name": "MarineEquipment",
+      "RareName": null,
+      "Sell": 4270,
+      "Buy": null,
+      "Demand": 400,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 4474
+    },
+    {
+      "Name": "PowerGenerators",
+      "RareName": null,
+      "Sell": 561,
+      "Buy": null,
+      "Demand": 287,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 631
+    },
+    {
+      "Name": "WaterPurifiers",
+      "RareName": null,
+      "Sell": 325,
+      "Buy": null,
+      "Demand": 506,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 378
+    },
+    {
+      "Name": "AgriMedicines",
+      "RareName": null,
+      "Sell": 1321,
+      "Buy": null,
+      "Demand": 2712,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1154
+    },
+    {
+      "Name": "BasicMedicines",
+      "RareName": null,
+      "Sell": 340,
+      "Buy": null,
+      "Demand": 919,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "CombatStabilisers",
+      "RareName": null,
+      "Sell": 3163,
+      "Buy": null,
+      "Demand": 70,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 3055
+    },
+    {
+      "Name": "PerformanceEnhancers",
+      "RareName": null,
+      "Sell": 7486,
+      "Buy": null,
+      "Demand": 343,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "ProgenitorCells",
+      "RareName": null,
+      "Sell": 6889,
+      "Buy": null,
+      "Demand": 0,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    }
+  ]
+}

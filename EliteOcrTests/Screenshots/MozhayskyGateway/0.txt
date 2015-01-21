@@ -1,0 +1,167 @@
+{
+  "StationName": "MOZHAYSKY GATEWAY",
+  "Description": {
+    "Wealth": "Normal",
+    "Population": "Large",
+    "PrimaryEconomy": "Industrial",
+    "SecondaryEconomy": null,
+    "Allegiance": "Empire",
+    "Government": "Corporate"
+  },
+  "Items": [
+    {
+      "Name": "HydrogenFuel",
+      "RareName": null,
+      "Sell": 90,
+      "Buy": 94,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 135961,
+      "SupplyStatus": "High",
+      "GalacticAverage": 147
+    },
+    {
+      "Name": "Clothing",
+      "RareName": null,
+      "Sell": 184,
+      "Buy": 198,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 44207,
+      "SupplyStatus": "High",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "ConsumerTechnology",
+      "RareName": null,
+      "Sell": 7553,
+      "Buy": null,
+      "Demand": 3258,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "DomesticAppliances",
+      "RareName": null,
+      "Sell": 417,
+      "Buy": 438,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 1879,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 631
+    },
+    {
+      "Name": "Algae",
+      "RareName": null,
+      "Sell": 267,
+      "Buy": null,
+      "Demand": 161058,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 200
+    },
+    {
+      "Name": "AnimalMeat",
+      "RareName": null,
+      "Sell": 1636,
+      "Buy": null,
+      "Demand": 5216,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1460
+    },
+    {
+      "Name": "Coffee",
+      "RareName": null,
+      "Sell": 1638,
+      "Buy": null,
+      "Demand": 6702,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1460
+    },
+    {
+      "Name": "Fish",
+      "RareName": null,
+      "Sell": 586,
+      "Buy": null,
+      "Demand": 22804,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 493
+    },
+    {
+      "Name": "FoodCartridges",
+      "RareName": null,
+      "Sell": 35,
+      "Buy": 45,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 71116,
+      "SupplyStatus": "High",
+      "GalacticAverage": 206
+    },
+    {
+      "Name": "FruitandVegetables",
+      "RareName": null,
+      "Sell": 408,
+      "Buy": null,
+      "Demand": 16703,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "Grain",
+      "RareName": null,
+      "Sell": 302,
+      "Buy": null,
+      "Demand": 53993,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 275
+    },
+    {
+      "Name": "SyntheticMeat",
+      "RareName": null,
+      "Sell": 399,
+      "Buy": null,
+      "Demand": 15861,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 324
+    },
+    {
+      "Name": "Tea",
+      "RareName": null,
+      "Sell": 1837,
+      "Buy": null,
+      "Demand": 5547,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1646
+    },
+    {
+      "Name": "Rare",
+      "RareName": "UTGAROAR MILLENNIAL EGGS",
+      "Sell": 1822,
+      "Buy": 1806,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 9163
+    }
+  ]
+}

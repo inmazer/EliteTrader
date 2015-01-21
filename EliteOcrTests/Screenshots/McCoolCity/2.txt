@@ -1,0 +1,145 @@
+{
+  "StationName": "MCCOOL CITY",
+  "Description": {
+    "Wealth": "Normal",
+    "Population": "VeryLarge",
+    "PrimaryEconomy": "Agricultural",
+    "SecondaryEconomy": null,
+    "Allegiance": "Empire",
+    "Government": "Patronage"
+  },
+  "Items": [
+    {
+      "Name": "BasicMedicines",
+      "RareName": null,
+      "Sell": 318,
+      "Buy": null,
+      "Demand": 930,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "PerformanceEnhancers",
+      "RareName": null,
+      "Sell": 7463,
+      "Buy": null,
+      "Demand": 26120,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "ProgenitorCells",
+      "RareName": null,
+      "Sell": 7463,
+      "Buy": null,
+      "Demand": 19777,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "ImperialSlaves",
+      "RareName": null,
+      "Sell": 15615,
+      "Buy": 15771,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 238837,
+      "SupplyStatus": "High",
+      "GalacticAverage": 16485
+    },
+    {
+      "Name": "AnimalMonitors",
+      "RareName": null,
+      "Sell": 445,
+      "Buy": null,
+      "Demand": 993356,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 378
+    },
+    {
+      "Name": "AquaponicSystems",
+      "RareName": null,
+      "Sell": 414,
+      "Buy": null,
+      "Demand": 2202658,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 349
+    },
+    {
+      "Name": "LandEnrichmentSystems",
+      "RareName": null,
+      "Sell": 5436,
+      "Buy": null,
+      "Demand": 94477,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 5088
+    },
+    {
+      "Name": "Leather",
+      "RareName": null,
+      "Sell": 77,
+      "Buy": 90,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 48586,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 240
+    },
+    {
+      "Name": "NaturalFabrics",
+      "RareName": null,
+      "Sell": 283,
+      "Buy": 299,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 17490,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 493
+    },
+    {
+      "Name": "Biowaste",
+      "RareName": null,
+      "Sell": 94,
+      "Buy": null,
+      "Demand": 1379196,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 74
+    },
+    {
+      "Name": "NonLethalWpns",
+      "RareName": null,
+      "Sell": 2161,
+      "Buy": null,
+      "Demand": 2705,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1976
+    },
+    {
+      "Name": "ReactiveArmour",
+      "RareName": null,
+      "Sell": 2436,
+      "Buy": null,
+      "Demand": 3931,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 2235
+    }
+  ]
+}

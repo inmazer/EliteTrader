@@ -20,19 +20,33 @@ namespace EliteTrader.EliteOcr.Tesseract
         private const int BuyAttempts = 5;
         private const int DemandAttempts = 5;
         private const int GalacticAverageAttempts = 5;
+        private const int ClockAttempts = 1;
 
         public OcrParser(ICommodityNameMatcher commodityNameMatcher)
         {
             _commodityNameMatcher = commodityNameMatcher;
         }
 
+        public string ParseClock(Bitmap bitmap)
+        {
+            using (TesseractEngine engine = new TesseractEngine(null, "edc", EngineMode.TesseractOnly))
+            {
+                List<string> clockValues = TessHelper.Process(engine, bitmap, "0123456789:", "Station clock", ClockAttempts, false);
+                string clock = TessHelper.MajorityVoteString(clockValues);
+
+                return clock;
+            }
+        }
+
         public ParsedScreenshot Parse(ParsedScreenshotBitmaps parsedScreenshotBitmaps)
         {
-            string folderAboveTessData = Environment.GetEnvironmentVariable("TESSDATA_PREFIX");
-            if (string.IsNullOrEmpty(folderAboveTessData))
+            string clockStr = ParseClock(parsedScreenshotBitmaps.Clock);
+            if (!IsCommoditiesScreen(clockStr))
             {
-                throw new Exception(string.Format("TESSDATA_PREFIX environment variable not set. Cannot continue."));
+                throw new Exception(string.Format("Attempted to parse screen that is not a valid commodities screen. No clock found at the expected location in the upper right corner."));
             }
+
+            string folderAboveTessData = GetFolderAboveTessData();
 
             List<CommodityItem> items = new List<CommodityItem>(parsedScreenshotBitmaps.ItemBitmapsList.Count);
 
@@ -44,9 +58,9 @@ namespace EliteTrader.EliteOcr.Tesseract
             using (TesseractEngine engine = new TesseractEngine(null, "edl", EngineMode.TesseractOnly, configPath))
             {
                 //timestamp = TessHelper.Process(engine, timestampBitmap, "0123456789:JANFEBMRPYULGSOCTVD");
-                string[] stationNames = TessHelper.Process(engine, parsedScreenshotBitmaps.Name, "ABCDEFGHIJKLMNOPQRSTUVWXYZ,-'", "Station name", StationNameAttempts);
+                List<string> stationNames = TessHelper.Process(engine, parsedScreenshotBitmaps.Name, "ABCDEFGHIJKLMNOPQRSTUVWXYZ,-'", "Station name", StationNameAttempts, true);
                 stationName = TessHelper.MajorityVoteString(stationNames);
-                string[] descriptions = TessHelper.Process(engine, parsedScreenshotBitmaps.Description, "ABCDEFGHIJKLMNOPQRSTUVWXYZ,()", "Station description", DescriptionAttempts);
+                List<string> descriptions = TessHelper.Process(engine, parsedScreenshotBitmaps.Description, "ABCDEFGHIJKLMNOPQRSTUVWXYZ,()", "Station description", DescriptionAttempts, true);
                 description = TessHelper.MajorityVoteString(descriptions);
 
                 foreach (CommodityItemBitmaps itemBitmaps in parsedScreenshotBitmaps.ItemBitmapsList)
@@ -62,127 +76,56 @@ namespace EliteTrader.EliteOcr.Tesseract
             return parsedScreenshot;
         }
 
-        private StationDescription GetStationDescription(string description)
-        {
-            description = description.ToLower();
-            //string str = "poor, large population agriculture economy (independent, anarchy)";
-
-            EnumStationWealth stationWealth = EnumStationWealth.Unknown;
-            if (description.Contains("poor"))
-            {
-                stationWealth = EnumStationWealth.Poor;
-            }
-
-            EnumPopulationSize populationSize = EnumPopulationSize.Unknown;
-            if (description.Contains("small"))
-            {
-                populationSize = EnumPopulationSize.Small;
-            }
-            else if (description.Contains("medium"))
-            {
-                populationSize = EnumPopulationSize.Medium;
-            }
-            else if (description.Contains("large"))
-            {
-                populationSize = EnumPopulationSize.Large;
-            }
-
-            EnumStationEconomy stationEconomy = EnumStationEconomy.Unknown;
-            if(description.Contains("agriculture"))
-            {
-                stationEconomy = EnumStationEconomy.Agriculture;
-            }
-
-            EnumAllegance allegance = EnumAllegance.Unknown;
-            if (description.Contains("alliance"))
-            {
-                allegance = EnumAllegance.Alliance;
-            }
-            else if (description.Contains("empire"))
-            {
-                allegance = EnumAllegance.Empire;
-            }
-            else if (description.Contains("federation"))
-            {
-                allegance = EnumAllegance.Federation;
-            }
-            else if (description.Contains("independent"))
-            {
-                allegance = EnumAllegance.Independent;
-            }
-
-            EnumGovernment government = EnumGovernment.Unknown;
-            if (description.Contains("anarchy"))
-            {
-                government = EnumGovernment.Anarchy;
-            }
-            else if (description.Contains("colony"))
-            {
-                government = EnumGovernment.Colony;
-            }
-            else if (description.Contains("communism"))
-            {
-                government = EnumGovernment.Communism;
-            }
-            else if (description.Contains("confederacy"))
-            {
-                government = EnumGovernment.Confederacy;
-            }
-            else if (description.Contains("cooperative"))
-            {
-                government = EnumGovernment.Cooperative;
-            }
-            else if (description.Contains("corporate"))
-            {
-                government = EnumGovernment.Corporate;
-            }
-            else if (description.Contains("democracy"))
-            {
-                government = EnumGovernment.Democracy;
-            }
-            else if (description.Contains("dictatorship"))
-            {
-                government = EnumGovernment.Dictatorship;
-            }
-            else if (description.Contains("feudal"))
-            {
-                government = EnumGovernment.Feudal;
-            }
-            else if (description.Contains("imperial"))
-            {
-                government = EnumGovernment.Imperial;
-            }
-            else if (description.Contains("patronage"))
-            {
-                government = EnumGovernment.Patronage;
-            }
-            else if (description.Contains("prison"))
-            {
-                government = EnumGovernment.PrisonColony;
-            }
-            else if (description.Contains("theocracy"))
-            {
-                government = EnumGovernment.Theocracy;
-            }
-
-            return new StationDescription(stationWealth, populationSize, stationEconomy, allegance, government);
-        }
-
         public CommodityItem ToItem(TesseractEngine engine, CommodityItemBitmaps itemBitmaps)
         {
             CommodityName name = GetCommodityName(engine, itemBitmaps.Name);
-            int? sell = GetSell(engine, name, itemBitmaps.Sell);
-            int? buy = GetBuy(engine, name, itemBitmaps.Buy);
             EnumSupplyStatus demandStatus;
             int? demand = GetDemand(itemBitmaps.Demand, engine, name, out demandStatus);
 
+            int? sell = GetSell(engine, name, itemBitmaps.Sell, demand != null);
+
             EnumSupplyStatus supplyStatus;
             int? supply = GetDemand(itemBitmaps.Supply, engine, name, out supplyStatus);
-
+            
+            int? buy = GetBuy(engine, name, itemBitmaps.Buy, supply != null);
+            
             int galacticAverage = GetGalacticAverage(engine, name, itemBitmaps.GalacticAverage);
 
             return new CommodityItem(name.Name, name.RareName, sell, buy, demand, demandStatus, supply,
                 supplyStatus, galacticAverage);
+        }
+
+        public static bool IsCommoditiesScreen(string clockStr)
+        {
+            string[] split = clockStr.Split(':');
+            if (split.Length != 3)
+            {
+                return false;
+            }
+            for (int i = 0; i < 3; ++i)
+            {
+                string part = split[i];
+                int n;
+                if (!int.TryParse(part, out n))
+                {
+                    return false;
+                }
+                if (i == 0)
+                {
+                    if (n > 24)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (n > 60)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private int? GetDemand(PartialItemBitmap partialItemBitmap, TesseractEngine engine, CommodityName name, out EnumSupplyStatus status)
@@ -197,15 +140,21 @@ namespace EliteTrader.EliteOcr.Tesseract
             {
                 return null;
             }
-            string[] results = TessHelper.Process(engine, bitmap, "0123456789,HIGHMEDLOW",
-                string.Format("Demand on commodity item ({0})", name), DemandAttempts);
+            List<string> results = TessHelper.Process(engine, bitmap, "0123456789,HIGHMEDLOW",
+                string.Format("Demand on commodity item ({0})", name), DemandAttempts, false);
+
+            if (results.Count == 0)
+            {
+                throw new Exception(string.Format("Got no results when doing ocr for demand/supply on item ({0})", name));
+                //bitmap.Save(@"c:\tmp\screens\failed.tif");
+            }
 
             Dictionary<EnumSupplyStatus, int> votes = new Dictionary<EnumSupplyStatus, int>();
             List<string> resultsWithoutSizeIndicator = new List<string>();
-            for(int i = 0; i < results.Length; ++i)
+            foreach (string str in results)
             {
+                string result = str;
                 EnumSupplyStatus statusVote;
-                string result = results[i];
                 if (string.IsNullOrEmpty(result))
                 {
                     continue;
@@ -245,7 +194,7 @@ namespace EliteTrader.EliteOcr.Tesseract
                 }
             }
             status = votes.OrderByDescending(a => a.Value).First().Key;
-            return GetPrice(resultsWithoutSizeIndicator.ToArray(), name);
+            return GetPrice(resultsWithoutSizeIndicator, name);
         }
 
         private CommodityName GetCommodityName(TesseractEngine engine, PartialItemBitmap partialItemBitmap)
@@ -259,7 +208,7 @@ namespace EliteTrader.EliteOcr.Tesseract
             {
                 throw new Exception(string.Format("Name bitmap must be set"));
             }
-            string[] results = TessHelper.Process(engine, bitmap, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.-'", string.Format("Name on commodity item"), CommodityNameAttempts);
+            List<string> results = TessHelper.Process(engine, bitmap, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ.-'", string.Format("Name on commodity item"), CommodityNameAttempts, true);
 
             string result = TessHelper.MajorityVoteString(results);
 
@@ -317,7 +266,7 @@ namespace EliteTrader.EliteOcr.Tesseract
         //    return GetPriceFromCharacterArray(engine, name, Buy.BitmapChars);
         //}
 
-        private int? GetSell(TesseractEngine engine, CommodityName name, PartialItemBitmap partialItemBitmap)
+        private int? GetSell(TesseractEngine engine, CommodityName name, PartialItemBitmap partialItemBitmap, bool mustHaveValue)
         {
             if (partialItemBitmap == null)
             {
@@ -329,12 +278,12 @@ namespace EliteTrader.EliteOcr.Tesseract
                 return null;
             }
 
-            string[] results = TessHelper.Process(engine, bitmap, "0123456789,", string.Format("Sell on commodity item ({0})", name), SellAttempts);
+            List<string> results = TessHelper.Process(engine, bitmap, "0123456789,", string.Format("Sell on commodity item ({0})", name), SellAttempts, mustHaveValue);
 
             return GetPrice(results, name);
         }
 
-        private int? GetBuy(TesseractEngine engine, CommodityName name, PartialItemBitmap partialItemBitmap)
+        private int? GetBuy(TesseractEngine engine, CommodityName name, PartialItemBitmap partialItemBitmap, bool mustHaveValue)
         {
             if (partialItemBitmap == null)
             {
@@ -346,7 +295,7 @@ namespace EliteTrader.EliteOcr.Tesseract
                 return null;
             }
 
-            string[] results = TessHelper.Process(engine, bitmap, "0123456789,", string.Format("Buy on commodity item ({0})", name), BuyAttempts);
+            List<string> results = TessHelper.Process(engine, bitmap, "0123456789,", string.Format("Buy on commodity item ({0})", name), BuyAttempts, mustHaveValue);
 
             return GetPrice(results, name);
         }
@@ -362,7 +311,7 @@ namespace EliteTrader.EliteOcr.Tesseract
             {
                 throw new Exception(string.Format("Galactic average must be set"));
             }
-            string[] results = TessHelper.Process(engine, bitmap, "0123456789,CR", string.Format("GalacticAverage on commodity item ({0})", name), GalacticAverageAttempts);
+            List<string> results = TessHelper.Process(engine, bitmap, "0123456789,CR", string.Format("GalacticAverage on commodity item ({0})", name), GalacticAverageAttempts, true);
 
             int? i = GetPrice(results, name);
 
@@ -376,9 +325,9 @@ namespace EliteTrader.EliteOcr.Tesseract
             return i.Value;
         }
 
-        private int? GetPrice(string[] resultsWithoutSizeIndicator, CommodityName name)
+        private int? GetPrice(List<string> resultsWithoutSizeIndicator, CommodityName name)
         {
-            if (resultsWithoutSizeIndicator.Length == 0)
+            if (resultsWithoutSizeIndicator.Count == 0)
             {
                 return null;
             }
@@ -418,6 +367,194 @@ namespace EliteTrader.EliteOcr.Tesseract
             }
 
             return votes.OrderByDescending(a => a.Value).FirstOrDefault().Key;
+        }
+
+        private StationDescription GetStationDescription(string description)
+        {
+            description = description.ToLower();
+            //string str = "poor, large population agriculture economy (independent, anarchy)";
+
+            EnumStationWealth stationWealth = EnumStationWealth.Normal;
+            if (description.Contains("poor"))
+            {
+                stationWealth = EnumStationWealth.Poor;
+            }
+            else if (description.Contains("wealthy"))
+            {
+                stationWealth = EnumStationWealth.Wealthy;
+            }
+
+            EnumPopulationSize populationSize = EnumPopulationSize.Unknown;
+            if (description.Contains("tiny"))
+            {
+                populationSize = EnumPopulationSize.Tiny;
+            }
+            else if (description.Contains("small"))
+            {
+                populationSize = EnumPopulationSize.Small;
+            }
+            else if (description.Contains("medium"))
+            {
+                populationSize = EnumPopulationSize.Medium;
+            }
+            else if (description.Contains("very large"))
+            {
+                populationSize = EnumPopulationSize.VeryLarge;
+            }
+            else if (description.Contains("large"))
+            {
+                populationSize = EnumPopulationSize.Large;
+            }
+            else if (description.Contains("huge"))
+            {
+                populationSize = EnumPopulationSize.Huge;
+            }
+
+            StationEconomy primaryStationEconomyObject = GetStationEconomy(description, 0);
+            EnumStationEconomy primaryStationEconomy = primaryStationEconomyObject.EconomyType;
+            EnumStationEconomy? secondaryStationEconomy = null;
+            if (primaryStationEconomyObject.EconomyType != primaryStationEconomy)
+            {
+                secondaryStationEconomy = GetStationEconomy(description, primaryStationEconomyObject.IndexInDescription).EconomyType;
+            }
+
+            EnumAllegiance allegiance = EnumAllegiance.Unknown;
+            if (description.Contains("alliance"))
+            {
+                allegiance = EnumAllegiance.Alliance;
+            }
+            else if (description.Contains("empire"))
+            {
+                allegiance = EnumAllegiance.Empire;
+            }
+            else if (description.Contains("federation"))
+            {
+                allegiance = EnumAllegiance.Federation;
+            }
+            else if (description.Contains("independent"))
+            {
+                allegiance = EnumAllegiance.Independent;
+            }
+
+            EnumGovernment government = EnumGovernment.Unknown;
+            if (description.Contains("anarchy"))
+            {
+                government = EnumGovernment.Anarchy;
+            }
+            else if (description.Contains("colony"))
+            {
+                government = EnumGovernment.Colony;
+            }
+            else if (description.Contains("communism"))
+            {
+                government = EnumGovernment.Communism;
+            }
+            else if (description.Contains("confederacy"))
+            {
+                government = EnumGovernment.Confederacy;
+            }
+            else if (description.Contains("cooperative"))
+            {
+                government = EnumGovernment.Cooperative;
+            }
+            else if (description.Contains("corporate"))
+            {
+                government = EnumGovernment.Corporate;
+            }
+            else if (description.Contains("democracy"))
+            {
+                government = EnumGovernment.Democracy;
+            }
+            else if (description.Contains("dictatorship"))
+            {
+                government = EnumGovernment.Dictatorship;
+            }
+            else if (description.Contains("feudal"))
+            {
+                government = EnumGovernment.Feudal;
+            }
+            else if (description.Contains("imperial"))
+            {
+                government = EnumGovernment.Imperial;
+            }
+            else if (description.Contains("patronage"))
+            {
+                government = EnumGovernment.Patronage;
+            }
+            else if (description.Contains("prison"))
+            {
+                government = EnumGovernment.PrisonColony;
+            }
+            else if (description.Contains("theocracy"))
+            {
+                government = EnumGovernment.Theocracy;
+            }
+
+            return new StationDescription(stationWealth, populationSize, primaryStationEconomy, secondaryStationEconomy, allegiance, government);
+        }
+
+        private static StationEconomy GetStationEconomy(string description, int searchFromIndex)
+        {
+            int stationEconomyIndex;
+            if ((stationEconomyIndex = description.IndexOf("agriculture", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.Agricultural, stationEconomyIndex);
+            }
+            if ((stationEconomyIndex = description.IndexOf("industrial", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.Industrial, stationEconomyIndex);
+            }
+            if ((stationEconomyIndex = description.IndexOf("extraction", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.Extraction, stationEconomyIndex);
+            }
+            if ((stationEconomyIndex = description.IndexOf("tech", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.HighTech, stationEconomyIndex);
+            }
+            if ((stationEconomyIndex = description.IndexOf("military", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.Millitary, stationEconomyIndex);
+            }
+            if ((stationEconomyIndex = description.IndexOf("refinery", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.Refinery, stationEconomyIndex);
+            }
+            if ((stationEconomyIndex = description.IndexOf("service", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.Service, stationEconomyIndex);
+            }
+            if ((stationEconomyIndex = description.IndexOf("terraforming", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.Terraforming, stationEconomyIndex);
+            }
+            if ((stationEconomyIndex = description.IndexOf("tourism", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            {
+                return new StationEconomy(EnumStationEconomy.Tourism, stationEconomyIndex);
+            }
+            return new StationEconomy(EnumStationEconomy.Unknown, -1);
+        }
+
+        private class StationEconomy
+        {
+            public EnumStationEconomy EconomyType { get; private set; }
+            public int IndexInDescription { get; private set; }
+
+            public StationEconomy(EnumStationEconomy economyType, int indexInDescription)
+            {
+                EconomyType = economyType;
+                IndexInDescription = indexInDescription;
+            }
+        }
+
+        private static string GetFolderAboveTessData()
+        {
+            string folderAboveTessData = Environment.GetEnvironmentVariable("TESSDATA_PREFIX");
+            if (string.IsNullOrEmpty(folderAboveTessData))
+            {
+                throw new Exception(string.Format("TESSDATA_PREFIX environment variable not set. Cannot continue."));
+            }
+            return folderAboveTessData;
         }
     }
 }

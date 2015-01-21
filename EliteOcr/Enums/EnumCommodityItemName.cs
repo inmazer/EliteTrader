@@ -1,102 +1,123 @@
 namespace EliteTrader.EliteOcr.Enums
 {
+    public enum EnumCommodityCategory
+    {
+        Chemicals = 1,
+        ConsumerItems = 2,
+        LegalDrugs = 3,
+        Foods = 4,
+        IndustrialMaterials = 5,
+        Medicines = 6,
+        Metals = 7,
+        Minerals = 8,
+        Technology = 9,
+        Weapons = 10,
+        Waste = 11,
+        Machinery = 12,
+        Textiles = 13,
+        Slavery = 15,
+    }
+
+    public enum EnumStationType
+    {
+        Unknown = 0,
+        CoriolisStation = 1,
+        ONeillStation = 2,
+        OcellusStation = 3,
+        OrbisStation = 4,
+        CommercialOutpost = 5,
+        IndustrialOutpost = 6,
+        ScientificOutpost = 7,
+        UnsanctionedOutpost = 8,
+        CivilianOutpost = 9,
+        Militaryoutpost = 10,
+        UnsanctionedCivilianOutpost = 11,
+        MiningOutpost = 12,
+    }
+
     public enum EnumCommodityItemName
     {
         Unknown = 0,
-
-        Explosives = 1, //Explosives
-        HydrogenFuel = 2, //Hydrogen Fuel
-        MineralOil = 3, //Mineral Oil
-        Pesticides = 4, //Pesticides
-        //ConsumerItems,
-        Clothing = 5, //Clothing
-        ConsumerTechnology = 6, //Consumer Technology
-        DomesticAppliances = 7, //Domestic Appliances
-        //Foods,
-        Algae = 8, //Algae
-        AnimalMeat = 9, //Animal Meat
-        Coffee = 10, //Coffee
-        Fish = 11, //Fish
-        FoodCartridges = 12, //Food Cartridges
-        FruitAndVegetables = 13, //Fruit and Vegetables
-        Grain = 14, //Grain
-        SyntheticMeat = 15, //Synthetic Meat
-        Tea = 16, //Tea
-        //IndustrialMaterials,
-        Polymers = 17, //Polymers
-        Semiconductors = 18, //Semiconductors
-        Superconductors = 19, //Superconductors
-        //Drugs,
-        Beer = 20, //Beer
-        Liquor = 21, //Liquor
-        Narcotics = 22, //Narcotics
-        Tobacco = 23, //Tobacco
-        Wine = 24, //Wine
-        //Machinery,
-        AtmosphericProcessors = 25, //Atmospheric Processors
-        CropHarvesters = 26, //Crop Harvesters
-        MarineEquipment = 27, //Marine Equipment
-        MicrobialFurnaces = 28, //Microbial Furnaces
-        MineralExtractors = 29, //Mineral Extractors
-        PowerGenerators = 30, //Power Generators
-        WaterPurifiers = 31, //Water Purifiers
-        //Medicines,
-        AgriMedicines = 32, //Agri-Medicines
-        BasicMedicines = 33, //Basic Medicines
-        CombatStabilisers = 34, //Combat Stabilisers
-        PerformanceEnhancers = 35, //Performance Enhancers
-        ProgenitorCells = 36, //Progenitor Cells
-        //Metals,
-        Aluminium = 37, //Aluminium
-        Beryllium = 38, //Beryllium
-        Cobalt = 39, //Cobalt
-        Copper = 40, //Copper
-        Gallium = 41, //Gallium
-        Gold = 42, //Gold
-        Indium = 43, //Indium
-        Lithium = 44, //Lithium
-        Palladium = 45, //Palladium
-        Platinum = 46, //Platinum
-        Silver = 47, //Silver
-        Tantalum = 48, //Tantalum
-        Titanium = 49, //Titanium
-        Uranium = 50, //Uranium
-        //Minerals,
-        Bauxite = 51, //Bauxite
-        Bertrandite = 52, //Bertrandite
-        Coltan = 53, //Coltan
-        Gallite = 54, //Gallite
-        Indite = 55, //Indite
-        Lepidolite = 56, //Lepidolite
-        Rutile = 57, //Rutile
-        Uraninite = 58, //Uraninite
-        //Slavery,
-        ImperialSlaves = 59, //Imperial Slaves
-        Slaves = 60, //Slaves
-        //Technology,
-        AdvancedCatalysers = 61, //Advanced Catalysers
-        AnimalMonitors = 62, //Animal Monitors
-        AquaponicSystems = 63, //Aquaponic Systems
-        AutoFabricators = 64, //Auto-Fabricators
-        BioreducingLichen = 65, //Bioreducing Lichen
-        ComputerComponents = 66, //Computer Components
-        HeSuits = 67, //H.E. Suits
-        LandEnrichmentSystems = 68, //Land Enrichment Systems
-        ResonatingSeparators = 69, //Resonating Separators
-        Robotics = 70, //Robotics
-        //Textiles,
-        Leather = 71, //Leather
-        NaturalFabrics = 72, //Natural Fabrics
-        SyntheticFabrics = 73, //Synthetic Fabrics
-        //Waste,
-        Biowaste = 74, //Biowaste
-        ChemicalWaste = 75, //Chemical Waste
-        Scrap = 76, //Scrap
-        //Weapons,
-        BattleWeapons = 77, //Battle Weapons
-        NonLethalWeapons = 78, //Non-Lethal Weapons
-        PersonalWeapons = 79, //Personal Weapons
-        ReactiveArmour = 80, //Reactive Armour
+        Explosives = 1,
+        Pesticides = 2,
+        MineralOil = 3,
+        HydrogenFuel = 4,
+        DomesticAppliances = 5,
+        ConsumerTechnology = 6,
+        Clothing = 7,
+        Liquor = 8,
+        Coffee = 9,
+        Tea = 10,
+        FoodCartridges = 12,
+        Fish = 13,
+        AnimalMeat = 14,
+        Grain = 15,
+        Algae = 16,
+        CropHarvesters = 19,
+        MicrobialFurnaces = 20,
+        MineralExtractors = 21,
+        MarineEquipment = 22,
+        BasicMedicines = 23,
+        Aluminium = 24,
+        Gold = 25,
+        Tantalum = 26,
+        Titanium = 27,
+        Cobalt = 28,
+        Coltan = 29,
+        Bauxite = 30,
+        Rutile = 31,
+        ComputerComponents = 32,
+        LandEnrichmentSystems = 33,
+        AquaponicSystems = 34,
+        AnimalMonitors = 35,
+        Robotics = 36,
+        Leather = 38,
+        Biowaste = 39,
+        Scrap = 40,
+        PersonalWeapons = 41,
+        Narcotics = 43,
+        CombatStabilisers = 44,
+        AgriMedicines = 45,
+        ProgenitorCells = 46,
+        Bertrandite = 47,
+        AutoFabricators = 48,
+        BioreducingLichen = 49,
+        ResonatingSeparators = 50,
+        AdvancedCatalysers = 51,
+        HESuits = 52,
+        NonLethalWpns = 53,
+        ReactiveArmour = 54,
+        PerformanceEnhancers = 55,
+        Indite = 56,
+        Gallite = 57,
+        Lepidolite = 58,
+        Beer = 59,
+        SyntheticMeat = 60,
+        FruitandVegetables = 61,
+        Superconductors = 62,
+        Silver = 63,
+        Lithium = 64,
+        Palladium = 65,
+        Indium = 66,
+        Uranium = 67,
+        Gallium = 68,
+        Beryllium = 69,
+        Polymers = 70,
+        Semiconductors = 71,
+        Copper = 72,
+        NaturalFabrics = 73,
+        SyntheticFabrics = 74,
+        Tobacco = 75,
+        Wine = 77,
+        Uraninite = 78,
+        BattleWeapons = 79,
+        AtmosphericProcessors = 80,
+        PowerGenerators = 82,
+        WaterPurifiers = 83,
+        Platinum = 84,
+        ChemicalWaste = 89,
+        ImperialSlaves = 92,
+        Slaves = 93,
 
         Rare = 200,
     }

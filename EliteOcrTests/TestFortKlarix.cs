@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using EliteTrader.EliteOcr;
-using EliteTrader.EliteOcr.Enums;
-using EliteTrader.EliteOcr.Tesseract;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 
 namespace EliteOcrTests
 {
@@ -17,104 +13,121 @@ namespace EliteOcrTests
     public class TestFortKlarix : TestScreenshotBase
     {
         [TestMethod]
-        [DeploymentItem(@"Screenshots\FortKlarix\0.bmp")]
-        [DeploymentItem(@"Screenshots\FortKlarix\0.txt")]
+        [DeploymentItem(@"Screenshots\FortKlarix\0.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\0.txt", @"Screenshots\FortKlarix")]
         public void Test0()
         {
-            string str = Environment.CurrentDirectory;
             ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
-            ParsedScreenshot actual = screenshotParser.Parse(@"0.bmp");
+            ParsedScreenshot actual = screenshotParser.Parse(@"Screenshots\FortKlarix\0.png");
 
             //Console.WriteLine(actual);
-            //string str = JsonConvert.SerializeObject(actual, Formatting.Indented);
+            //string str = Serialize(actual);
             //Console.WriteLine(str);
 
-            ParsedScreenshot expected = JsonConvert.DeserializeObject<ParsedScreenshot>(File.ReadAllText(@"0.txt"));
-            Compare(expected, actual); 
+            Compare(@"Screenshots\FortKlarix\0.txt", actual); 
         }
 
         [TestMethod]
-        [DeploymentItem(@"Screenshots\FortKlarix\1.bmp")]
-        [DeploymentItem(@"Screenshots\FortKlarix\1.txt")]
+        [DeploymentItem(@"Screenshots\FortKlarix\1.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\1.txt", @"Screenshots\FortKlarix")]
         public void Test1()
         {
             ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
-            ParsedScreenshot actual = screenshotParser.Parse(@"1.bmp"); 
+            ParsedScreenshot actual = screenshotParser.Parse(@"Screenshots\FortKlarix\1.png");
+
             //Console.WriteLine(actual);
-            //string str = JsonConvert.SerializeObject(actual, Formatting.Indented);
+            //string str = Serialize(actual);
             //Console.WriteLine(str);
 
-            ParsedScreenshot expected = JsonConvert.DeserializeObject<ParsedScreenshot>(File.ReadAllText(@"1.txt"));
-            Compare(expected, actual);
+            Compare(@"Screenshots\FortKlarix\1.txt", actual);
         }
 
         [TestMethod]
-        [DeploymentItem(@"Screenshots\FortKlarix\2.bmp")]
-        [DeploymentItem(@"Screenshots\FortKlarix\2.txt")]
+        [DeploymentItem(@"Screenshots\FortKlarix\2.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\2.txt", @"Screenshots\FortKlarix")]
         public void Test2()
         {
             ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
-            ParsedScreenshot actual = screenshotParser.Parse(@"2.bmp");
+            ParsedScreenshot actual = screenshotParser.Parse(@"Screenshots\FortKlarix\2.png");
+
             //Console.WriteLine(actual);
-            //string str = JsonConvert.SerializeObject(actual, Formatting.Indented);
+            //string str = Serialize(actual);
             //Console.WriteLine(str);
 
-            ParsedScreenshot expected = JsonConvert.DeserializeObject<ParsedScreenshot>(File.ReadAllText(@"2.txt"));
-            Compare(expected, actual);
+            Compare(@"Screenshots\FortKlarix\2.txt", actual);
         }
 
         [TestMethod]
-        [DeploymentItem(@"Screenshots\FortKlarix\3.bmp")]
-        [DeploymentItem(@"Screenshots\FortKlarix\3.txt")]
+        [DeploymentItem(@"Screenshots\FortKlarix\3.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\3.txt", @"Screenshots\FortKlarix")]
         public void Test3()
         {
             ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
-            ParsedScreenshot actual = screenshotParser.Parse(@"3.bmp");
+            ParsedScreenshot actual = screenshotParser.Parse(@"Screenshots\FortKlarix\3.png");
 
             //Console.WriteLine(actual);
-            //string str = JsonConvert.SerializeObject(actual, Formatting.Indented);
+            //string str = Serialize(actual);
             //Console.WriteLine(str);
 
-            ParsedScreenshot expected = JsonConvert.DeserializeObject<ParsedScreenshot>(File.ReadAllText(@"3.txt"));
-            Compare(expected, actual);
+            Compare(@"Screenshots\FortKlarix\3.txt", actual);
         }
 
-        //[TestMethod]
-        public void PrintNewTrainingFile()
+        [TestMethod]
+        [DeploymentItem(@"Screenshots\FortKlarix\4.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\4.txt", @"Screenshots\FortKlarix")]
+        public void Test4()
         {
-            ParsedScreenshotBitmaps parsedScreenshotBitmaps =
-                ImageParser.Parse(new Bitmap(@"screenshots\FortKlarix\3.bmp"));
+            ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
+            ParsedScreenshot actual = screenshotParser.Parse(@"Screenshots\FortKlarix\4.png");
 
-            const string location = @"c:\tmp\screens\tmp";
+            //Console.WriteLine(actual);
+            //string str = Serialize(actual);
+            //Console.WriteLine(str);
 
-            TiffSaver.SaveScaled(location, parsedScreenshotBitmaps.Name, 250);
-            TiffSaver.Save(location, parsedScreenshotBitmaps.Name);
-            TiffSaver.SaveScaled(location, parsedScreenshotBitmaps.Name, 150);
-            TiffSaver.SaveScaled(location, parsedScreenshotBitmaps.Name, 200);
-            
-            TiffSaver.Save(location, parsedScreenshotBitmaps.Description);
-            TiffSaver.SaveScaled(location, parsedScreenshotBitmaps.Description, 150);
-            TiffSaver.SaveScaled(location, parsedScreenshotBitmaps.Description, 200);
-            TiffSaver.SaveScaled(location, parsedScreenshotBitmaps.Description, 250);
+            Compare(@"Screenshots\FortKlarix\4.txt", actual);
+        }
 
-            foreach (CommodityItemBitmaps item in parsedScreenshotBitmaps.ItemBitmapsList)
-            {
-                TiffSaver.Save(location, item.Name.Bitmap);
-                TiffSaver.Save(location, item.Sell.Bitmap);
-                TiffSaver.Save(location, item.Buy.Bitmap);
-                TiffSaver.Save(location, item.Supply.Bitmap);
-                TiffSaver.Save(location, item.Demand.Bitmap);
-                TiffSaver.Save(location, item.GalacticAverage.Bitmap);
+        [TestMethod]
+        [DeploymentItem(@"Screenshots\FortKlarix\5.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\5.txt", @"Screenshots\FortKlarix")]
+        public void Test5()
+        {
+            ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
+            ParsedScreenshot actual = screenshotParser.Parse(@"Screenshots\FortKlarix\5.png");
 
-                TiffSaver.SaveScaled(location, item.Name.Bitmap, 200);
-                TiffSaver.SaveScaled(location, item.Sell.Bitmap, 200);
-                TiffSaver.SaveScaled(location, item.Buy.Bitmap, 200);
-                TiffSaver.SaveScaled(location, item.Supply.Bitmap, 200);
-                TiffSaver.SaveScaled(location, item.Demand.Bitmap, 200);
-                TiffSaver.SaveScaled(location, item.GalacticAverage.Bitmap, 200);
-            }
+            //Console.WriteLine(actual);
+            //string str = Serialize(actual);
+            //Console.WriteLine(str);
 
-            TiffSaver.FlushTiff();
+            Compare(@"Screenshots\FortKlarix\5.txt", actual);
+        }
+
+        [TestMethod]
+        [DeploymentItem(@"Screenshots\FortKlarix\0.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\1.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\2.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\3.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\4.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\5.png", @"Screenshots\FortKlarix")]
+        [DeploymentItem(@"Screenshots\FortKlarix\combined.txt", @"Screenshots\FortKlarix")]
+        public void TestCombined()
+        {
+            ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
+            List<Bitmap> bitmaps = new List<Bitmap>();
+            bitmaps.Add(new Bitmap(@"Screenshots\FortKlarix\0.png"));
+            bitmaps.Add(new Bitmap(@"Screenshots\FortKlarix\1.png"));
+            bitmaps.Add(new Bitmap(@"Screenshots\FortKlarix\2.png"));
+            bitmaps.Add(new Bitmap(@"Screenshots\FortKlarix\3.png"));
+            bitmaps.Add(new Bitmap(@"Screenshots\FortKlarix\4.png"));
+            bitmaps.Add(new Bitmap(@"Screenshots\FortKlarix\5.png"));
+
+            ParsedScreenshot actual = screenshotParser.ParseMultiple(bitmaps);
+
+            //Console.WriteLine(actual);
+            //string str = Serialize(actual);
+            //Console.WriteLine(str);
+
+            Compare(@"Screenshots\FortKlarix\combined.txt", actual);
         }
     }
 }

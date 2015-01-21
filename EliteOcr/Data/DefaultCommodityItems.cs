@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using EliteTrader.EliteOcr.Enums;
 
 namespace EliteTrader.EliteOcr.Data
@@ -6,6 +7,7 @@ namespace EliteTrader.EliteOcr.Data
     public static class DefaultCommodityItems
     {
         public static readonly Dictionary<string, EnumCommodityItemName> ItemNames = new Dictionary<string, EnumCommodityItemName>();
+        public static readonly Dictionary<EnumCommodityItemName, string> ItemNamesReverse = new Dictionary<EnumCommodityItemName, string>();
 
         static DefaultCommodityItems()
         {
@@ -21,7 +23,7 @@ namespace EliteTrader.EliteOcr.Data
             ItemNames.Add("COFFEE", EnumCommodityItemName.Coffee);
             ItemNames.Add("FISH", EnumCommodityItemName.Fish);
             ItemNames.Add("FOOD CARTRIDGES", EnumCommodityItemName.FoodCartridges);
-            ItemNames.Add("FRUIT AND VEGETABLES", EnumCommodityItemName.FruitAndVegetables);
+            ItemNames.Add("FRUIT AND VEGETABLES", EnumCommodityItemName.FruitandVegetables);
             ItemNames.Add("GRAIN", EnumCommodityItemName.Grain);
             ItemNames.Add("SYNTHETIC MEAT", EnumCommodityItemName.SyntheticMeat);
             ItemNames.Add("TEA", EnumCommodityItemName.Tea);
@@ -75,7 +77,7 @@ namespace EliteTrader.EliteOcr.Data
             ItemNames.Add("AUTO-FABRICATORS", EnumCommodityItemName.AutoFabricators);
             ItemNames.Add("BIOREDUCING LICHEN", EnumCommodityItemName.BioreducingLichen);
             ItemNames.Add("COMPUTER COMPONENTS", EnumCommodityItemName.ComputerComponents);
-            ItemNames.Add("H.E. SUITS", EnumCommodityItemName.HeSuits);
+            ItemNames.Add("H.E. SUITS", EnumCommodityItemName.HESuits);
             ItemNames.Add("LAND ENRICHMENT SYSTEMS", EnumCommodityItemName.LandEnrichmentSystems);
             ItemNames.Add("RESONATING SEPARATORS", EnumCommodityItemName.ResonatingSeparators);
             ItemNames.Add("ROBOTICS", EnumCommodityItemName.Robotics);
@@ -86,9 +88,11 @@ namespace EliteTrader.EliteOcr.Data
             ItemNames.Add("CHEMICAL WASTE", EnumCommodityItemName.ChemicalWaste);
             ItemNames.Add("SCRAP", EnumCommodityItemName.Scrap);
             ItemNames.Add("BATTLE WEAPONS", EnumCommodityItemName.BattleWeapons);
-            ItemNames.Add("NON-LETHAL WEAPONS", EnumCommodityItemName.NonLethalWeapons);
+            ItemNames.Add("NON-LETHAL WEAPONS", EnumCommodityItemName.NonLethalWpns);
             ItemNames.Add("PERSONAL WEAPONS", EnumCommodityItemName.PersonalWeapons);
             ItemNames.Add("REACTIVE ARMOUR", EnumCommodityItemName.ReactiveArmour);
+
+            ItemNamesReverse = ItemNames.ToDictionary(a => a.Value, a => a.Key);
         }
     }
 }

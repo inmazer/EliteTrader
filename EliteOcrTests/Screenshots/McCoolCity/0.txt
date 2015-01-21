@@ -1,0 +1,167 @@
+{
+  "StationName": "MCCOOL CITY",
+  "Description": {
+    "Wealth": "Normal",
+    "Population": "VeryLarge",
+    "PrimaryEconomy": "Agricultural",
+    "SecondaryEconomy": null,
+    "Allegiance": "Empire",
+    "Government": "Patronage"
+  },
+  "Items": [
+    {
+      "Name": "HydrogenFuel",
+      "RareName": null,
+      "Sell": 90,
+      "Buy": 95,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 997154,
+      "SupplyStatus": "High",
+      "GalacticAverage": 147
+    },
+    {
+      "Name": "MineralOil",
+      "RareName": null,
+      "Sell": 82,
+      "Buy": 92,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 628969,
+      "SupplyStatus": "High",
+      "GalacticAverage": 259
+    },
+    {
+      "Name": "Pesticides",
+      "RareName": null,
+      "Sell": 351,
+      "Buy": null,
+      "Demand": 1049205,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 292
+    },
+    {
+      "Name": "Clothing",
+      "RareName": null,
+      "Sell": 448,
+      "Buy": null,
+      "Demand": 278871,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "ConsumerTechnology",
+      "RareName": null,
+      "Sell": 7463,
+      "Buy": null,
+      "Demand": 40443,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "DomesticAppliances",
+      "RareName": null,
+      "Sell": 683,
+      "Buy": null,
+      "Demand": 91286,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 631
+    },
+    {
+      "Name": "Algae",
+      "RareName": null,
+      "Sell": 34,
+      "Buy": 46,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 81627,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 200
+    },
+    {
+      "Name": "AnimalMeat",
+      "RareName": null,
+      "Sell": 1023,
+      "Buy": 1059,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 91969,
+      "SupplyStatus": "High",
+      "GalacticAverage": 1460
+    },
+    {
+      "Name": "Coffee",
+      "RareName": null,
+      "Sell": 1023,
+      "Buy": 1059,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 540303,
+      "SupplyStatus": "High",
+      "GalacticAverage": 1460
+    },
+    {
+      "Name": "Fish",
+      "RareName": null,
+      "Sell": 256,
+      "Buy": 271,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 246855,
+      "SupplyStatus": "High",
+      "GalacticAverage": 493
+    },
+    {
+      "Name": "FruitandVegetables",
+      "RareName": null,
+      "Sell": 202,
+      "Buy": 219,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 22669,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "Grain",
+      "RareName": null,
+      "Sell": 94,
+      "Buy": 106,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 2843444,
+      "SupplyStatus": "High",
+      "GalacticAverage": 275
+    },
+    {
+      "Name": "Rare",
+      "RareName": "JAROUA RICE",
+      "Sell": 385,
+      "Buy": 385,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 18,
+      "SupplyStatus": "High",
+      "GalacticAverage": 8169
+    },
+    {
+      "Name": "Tea",
+      "RareName": null,
+      "Sell": 1175,
+      "Buy": 1217,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 468769,
+      "SupplyStatus": "High",
+      "GalacticAverage": 1646
+    }
+  ]
+}

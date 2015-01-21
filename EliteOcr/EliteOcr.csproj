@@ -29,6 +29,24 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Magick.NET-AnyCPU">
       <HintPath>..\packages\Magick.NET-Q16-AnyCPU.7.0.0.0008\lib\net40-client\Magick.NET-AnyCPU.dll</HintPath>
@@ -36,6 +54,10 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,6 +71,7 @@
     <Compile Include="CommodityItem.cs" />
     <Compile Include="CommodityItemBitmaps.cs" />
     <Compile Include="CommodityName.cs" />
+    <Compile Include="Data\CommodityItemHelper.cs" />
     <Compile Include="Data\CommodityItemNameMatcher.cs" />
     <Compile Include="Data\DefaultCommodityItems.cs" />
     <Compile Include="Data\DetfaultRareCommodities.cs" />
@@ -57,6 +80,7 @@
     <Compile Include="ImageParser.cs" />
     <Compile Include="Interfaces\ICommodityNameMatcher.cs" />
     <Compile Include="Interfaces\ICommodityNameRepository.cs" />
+    <Compile Include="Logging\ILogger.cs" />
     <Compile Include="ParsedScreenshot.cs" />
     <Compile Include="ParsedScreenshotBitmaps.cs" />
     <Compile Include="PartialItemBitmap.cs" />
@@ -64,11 +88,13 @@
     <Compile Include="ScreenshotParser.cs" />
     <Compile Include="Tesseract\OcrParser.cs" />
     <Compile Include="Tesseract\TessHelper.cs" />
-    <Compile Include="Tesseract\TessTester.cs" />
     <Compile Include="Tesseract\TiffSaver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="tessdata\edc.traineddata">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="tessdata\edl.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -93,6 +119,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

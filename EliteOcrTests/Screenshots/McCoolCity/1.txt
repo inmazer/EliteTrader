@@ -1,0 +1,167 @@
+{
+  "StationName": "MCCOOL CITY",
+  "Description": {
+    "Wealth": "Normal",
+    "Population": "VeryLarge",
+    "PrimaryEconomy": "Agricultural",
+    "SecondaryEconomy": null,
+    "Allegiance": "Empire",
+    "Government": "Patronage"
+  },
+  "Items": [
+    {
+      "Name": "Beer",
+      "RareName": null,
+      "Sell": 77,
+      "Buy": 90,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 48583,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 240
+    },
+    {
+      "Name": "Liquor",
+      "RareName": null,
+      "Sell": 493,
+      "Buy": 520,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 852,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 738
+    },
+    {
+      "Name": "Tobacco",
+      "RareName": null,
+      "Sell": 4424,
+      "Buy": 4518,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 22669,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 5088
+    },
+    {
+      "Name": "Wine",
+      "RareName": null,
+      "Sell": 150,
+      "Buy": 163,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 29146,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 324
+    },
+    {
+      "Name": "AtmosphericProcessors",
+      "RareName": null,
+      "Sell": 406,
+      "Buy": null,
+      "Demand": 827,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 493
+    },
+    {
+      "Name": "CropHarvesters",
+      "RareName": null,
+      "Sell": 2452,
+      "Buy": null,
+      "Demand": 506340,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 2378
+    },
+    {
+      "Name": "MarineEquipment",
+      "RareName": null,
+      "Sell": 4571,
+      "Buy": null,
+      "Demand": 235268,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 4474
+    },
+    {
+      "Name": "PowerGenerators",
+      "RareName": null,
+      "Sell": 531,
+      "Buy": null,
+      "Demand": 2024,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 631
+    },
+    {
+      "Name": "WaterPurifiers",
+      "RareName": null,
+      "Sell": 302,
+      "Buy": null,
+      "Demand": 3567,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 378
+    },
+    {
+      "Name": "AgriMedicines",
+      "RareName": null,
+      "Sell": 1285,
+      "Buy": null,
+      "Demand": 321221,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1154
+    },
+    {
+      "Name": "BasicMedicines",
+      "RareName": null,
+      "Sell": 318,
+      "Buy": null,
+      "Demand": 930,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "PerformanceEnhancers",
+      "RareName": null,
+      "Sell": 7463,
+      "Buy": null,
+      "Demand": 26120,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "ProgenitorCells",
+      "RareName": null,
+      "Sell": 7463,
+      "Buy": null,
+      "Demand": 19777,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "ImperialSlaves",
+      "RareName": null,
+      "Sell": 15615,
+      "Buy": 15771,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 238837,
+      "SupplyStatus": "High",
+      "GalacticAverage": 16485
+    }
+  ]
+}

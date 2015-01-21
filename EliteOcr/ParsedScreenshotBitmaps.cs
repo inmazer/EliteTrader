@@ -6,12 +6,14 @@ namespace EliteTrader.EliteOcr
 {
     public class ParsedScreenshotBitmaps : IDisposable
     {
+        public Bitmap Clock { get; private set; }
         public Bitmap Name { get; private set; }
         public Bitmap Description { get; private set; }
         public List<CommodityItemBitmaps> ItemBitmapsList { get; private set; }
 
-        public ParsedScreenshotBitmaps(Bitmap name, Bitmap description, List<CommodityItemBitmaps> itemBitmapsList)
+        public ParsedScreenshotBitmaps(Bitmap clock, Bitmap name, Bitmap description, List<CommodityItemBitmaps> itemBitmapsList)
         {
+            Clock = clock;
             Name = name;
             Description = description;
             ItemBitmapsList = itemBitmapsList;
@@ -19,6 +21,11 @@ namespace EliteTrader.EliteOcr
 
         public void Dispose()
         {
+            if (Clock != null)
+            {
+                Clock.Dispose();
+                Clock = null;
+            }
             if (Name != null)
             {
                 Name.Dispose();

@@ -1,271 +1,405 @@
 ﻿using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Drawing;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using Capture;
-using Capture.Hook;
-using Capture.Interface;
+using System.Windows.Media.Imaging;
+using EliteTrader.EliteOcr;
+using EliteTrader.EliteOcr.Data;
+using EliteTrader.EliteOcr.Interfaces;
+using EliteTrader.ProgressReporting;
+using ThruddClient;
 
 namespace EliteTrader
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private static CaptureProcess _captureProcess;
-
         public static readonly string DateTimeUiFormat = CultureInfo.CurrentUICulture.DateTimeFormat.SortableDateTimePattern;
+
+        private readonly ICommodityNameRepository _commodityNameRepository;
+
+        private ObservableCollection<string> _files;
+        private string _selectedFile;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<LogEntry> LogEntries { get; private set; }
 
-        public ICommand AttachToElite { get; private set; }
-        public ICommand DetachFromElite { get; private set; }
-        public ICommand CaptureScreen { get; private set; }
-        public ICommand ShowSettings { get; private set; }
+        public ICommand Import { get; private set; }
+        public ICommand DeleteScreenshots { get; private set; }
+        
+        public EliteTraderSettings Settings { get; private set; }
+
+        public Logger Logger { get; private set; }
 
         public MainWindow()
         {
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
 
-            DataContext = this;
+                _commodityNameRepository = new CommodityItemNameMatcher();
 
-            AttachToElite = new RoutedCommand();
-            CommandBindings.Add(new CommandBinding(AttachToElite, AttachToEliteExecute, AttachToEliteExecuteCanExecute));
+                LogEntries = new ObservableCollection<LogEntry>();
+                Logger = new Logger(LogEntries);
 
-            DetachFromElite = new RoutedCommand();
-            CommandBindings.Add(new CommandBinding(DetachFromElite, DetachFromEliteExecute, DetachFromEliteExecuteCanExecute));
+                Settings = EliteTraderSettings.Load(this, Logger);
 
-            CaptureScreen = new RoutedCommand();
-            CommandBindings.Add(new CommandBinding(CaptureScreen, CaptureScreenExecute, CaptureScreenExecuteCanExecute));
+                SettingsTabItem.DataContext = Settings;
+                DataContext = this;
 
-            ShowSettings = new RoutedCommand();
-            CommandBindings.Add(new CommandBinding(ShowSettings, ShowSettingsExecute, ShowSettingsExecuteCanExecute));
+                Import = new RoutedCommand();
+                CommandBindings.Add(new CommandBinding(Import, ImportExecute, ImportCanExecute));
 
-            LogEntries = new ObservableCollection<LogEntry>();
+                DeleteScreenshots = new RoutedCommand();
+                CommandBindings.Add(new CommandBinding(DeleteScreenshots, DeleteScreenshotsExecute, DeleteScreenshotsCanExecute));
 
-            HotKey attachHotkey = new HotKey(Key.A, KeyModifier.Alt | KeyModifier.Ctrl, OnAttachHotkeyHandler);
-            HotKey captureScreenHotkey = new HotKey(Key.S, KeyModifier.Alt | KeyModifier.Ctrl, OnCaptureHotkeyHandler);
+                UpdateFilesList();
+                UpdateFolderWatcher();
+
+                Settings.ScreenshotPathChanged += HandleScreenshotPathChanged;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+                Close();
+            }
         }
 
-        private void ShowSettingsExecute(object sender, ExecutedRoutedEventArgs e)
+        private void DeleteScreenshotsExecute(object sender, ExecutedRoutedEventArgs e)
         {
+            List<string> selectedPaths = GetSelectedPaths();
+            if (selectedPaths.Count == 0)
+            {
+                return;
+            }
 
-            e.Handled = true;
-        }
+            MessageBoxResult result = MessageBox.Show(string.Format("Delete ({0}) screenshots. Are you sure?", selectedPaths.Count),
+                "Delete screenshots", MessageBoxButton.YesNo);
 
-        private void ShowSettingsExecuteCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-            e.Handled = true;
-        }
-
-        private void OnAttachHotkeyHandler(HotKey hotKey)
-        {
-            AttachToEliteExecuteInternal();
-        }
-
-        private void AttachToEliteExecute(object sender, ExecutedRoutedEventArgs e)
-        {
-            AttachToEliteExecuteInternal();
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
             
-            e.Handled = true;
+            foreach (string path in selectedPaths)
+            {
+                File.Delete(path);
+            }
+            UpdateFilesList();
         }
 
-        private void AttachToEliteExecuteInternal()
+        private void DeleteScreenshotsCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (_captureProcess != null)
+            List<string> selectedPaths = GetSelectedPaths();
+            if (selectedPaths.Count > 0)
             {
-                Log(MessageType.Error, "Already attached!");
+                e.CanExecute = true;
+            }
+        }
+
+        private void HandleScreenshotPathChanged(object sender, EventArgs e)
+        {
+            UpdateFolderWatcher();
+            UpdateFilesList();
+        }
+
+        private FileSystemWatcher _watcher;
+        private void UpdateFolderWatcher()
+        {
+            if (_watcher == null)
+            {
+                _watcher = new FileSystemWatcher
+                {
+                    NotifyFilter = NotifyFilters.FileName
+                };
+
+                _watcher.Changed += ScreenshotFolderChanged;
+                _watcher.Created += ScreenshotFolderChanged;
+                _watcher.Deleted += ScreenshotFolderChanged;
+                _watcher.Renamed += ScreenshotFolderChanged;
+            }
+            else
+            {
+                _watcher.EnableRaisingEvents = false;
+            }
+
+            if (!Directory.Exists(Settings.ScreenshotFolder))
+            {
                 return;
             }
 
-            Process process = Process.GetProcessesByName("EliteDangerous32").FirstOrDefault();
+            _watcher.Path = Settings.ScreenshotFolder;
+            _watcher.EnableRaisingEvents = true;
+        }
 
-            if (process == null)
+        private void ScreenshotFolderChanged(object sender, FileSystemEventArgs e)
+        {
+            UpdateFilesList();
+        }
+
+        private void UpdateFilesList()
+        {
+            Files = new ObservableCollection<string>();
+
+            if (!Directory.Exists(Settings.ScreenshotFolder))
             {
-                Log(MessageType.Error, "EliteDangeroud32 process not found");
                 return;
             }
 
-            CaptureConfig cc = new CaptureConfig
+            List<string> allFiles = new List<string>();
+            foreach (string fileFilter in new[] { "*.bmp", "*.png" })
             {
-                Direct3DVersion = Direct3DVersion.Direct3D11,
-                ShowOverlay = false
-            };
+                allFiles.AddRange(Directory.GetFiles(Settings.ScreenshotFolder, fileFilter, SearchOption.TopDirectoryOnly));
+            }
 
-            CaptureInterface captureInterface = new CaptureInterface();
-            captureInterface.RemoteMessage += CaptureInterface_RemoteMessage;
-            _captureProcess = new CaptureProcess(process, cc, captureInterface);
-
-            Log(MessageType.Information, "Successfully attached to Elite process");
+            Files = new ObservableCollection<string>(allFiles.Select(Path.GetFileName));
         }
 
-        private void AttachToEliteExecuteCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        private void ImportCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = _captureProcess == null;
-            e.Handled = true;
+            e.CanExecute = !string.IsNullOrEmpty(SelectedFile);
         }
 
-        private void DetachFromEliteExecute(object sender, ExecutedRoutedEventArgs e)
+        private ParsedScreenshot GetParsedScreenshot(List<string> selectedPaths)
         {
-            e.Handled = true;
-
-            if (_captureProcess == null)
+            ProgressDialogResult dialogResult = ProgressDialog.Execute(this, "Running OCR on screenshot(s)", () =>
             {
-                Log(MessageType.Error, "Unable to detach from Elite, not attached");
+                ScreenshotParser parser = new ScreenshotParser(ResourceFilesCopier.AppDataPath);
+                ParsedScreenshot p = parser.ParseMultiple(selectedPaths);
+
+                return p;
+
+            }, new ProgressDialogSettings(false, false, true));
+
+            if (dialogResult.OperationFailed)
+            {
+                MessageBox.Show(dialogResult.Error.ToString());
+
+                MessageBoxResult shouldUpload = MessageBox.Show("OCR Failed. Do you want to upload the image(s) to the developer as a bug report?",
+                    "OCR Failed", MessageBoxButton.YesNo);
+                if (shouldUpload == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        MegaClient.Upload(Settings, selectedPaths, dialogResult.Error);
+                        MessageBox.Show("Successfully uploaded image(s) to the developer");
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.ToString());
+                    }
+                }
+
+                return null;
+            }
+
+            ParsedScreenshot parsedScreenshot = (ParsedScreenshot) dialogResult.Result;
+
+            VerifyStationNameDialog dialog = new VerifyStationNameDialog(this, parsedScreenshot.StationName);
+            bool? result = dialog.ShowDialog();
+            if (!result.HasValue || !result.Value)
+            {
+                return null;
+            }
+
+            parsedScreenshot.UpdateStationName(dialog.StationName);
+
+            return parsedScreenshot;
+        }
+
+        private void ImportExecute(object sender, RoutedEventArgs eventArgs)
+        {
+            try
+            {
+                ImportExecuteInternal();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+            }
+        }
+
+        private void ImportExecuteInternal()
+        {
+            if (string.IsNullOrEmpty(SelectedFile))
+            {
+                MessageBox.Show("Please select a screenshot");
                 return;
             }
 
-            HookManager.RemoveHookedProcess(_captureProcess.Process.Id);
-            _captureProcess.CaptureInterface.Disconnect();
-            _captureProcess = null;
+            List<string> selectedPaths = GetSelectedPaths();
 
-            Log(MessageType.Information, "Successfully detached from the Elite process");
-        }
-        
-        private void DetachFromEliteExecuteCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = _captureProcess != null;
-            e.Handled = true;
-        }
-
-        private void OnCaptureHotkeyHandler(HotKey hotKey)
-        {
-            CaptureScreenExecuteInternal();
-        }
-
-        private void CaptureScreenExecute(object sender, ExecutedRoutedEventArgs e)
-        {
-            CaptureScreenExecuteInternal();
-            e.Handled = true;
-        }
-
-        private void CaptureScreenExecuteCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = _captureProcess != null;
-            e.Handled = true;
-        }
-
-        private void CaptureScreenExecuteInternal()
-        {
-            if (_captureProcess == null)
+            ParsedScreenshot parsedScreenshot = GetParsedScreenshot(selectedPaths);
+            if (parsedScreenshot == null)
             {
-                Log(MessageType.Error, "Unable to take capture screen, not attached");
                 return;
             }
 
-            _captureProcess.CaptureInterface.BeginGetScreenshot(new TimeSpan(0, 0, 2), Callback);
-
-            Log(MessageType.Debug, "Screen capture initiated");
-        }
-
-        /// <summary>
-        /// Display messages from the target process
-        /// </summary>
-        /// <param name="message"></param>
-        private void CaptureInterface_RemoteMessage(MessageReceivedEventArgs message)
-        {
-            LogThroughDispatcher(message.MessageType, message.Message);
-        }
-
-        private void LogThroughDispatcher(MessageType severity, string message)
-        {
-            App.Current.Dispatcher.Invoke((Action)delegate
+            StationSearchResult stationSearchResult = GetStationSearchResult(parsedScreenshot);
+            if (stationSearchResult == null)
             {
-                Log(severity, message);
-            });
-        }
-
-        private void Log(MessageType severity, string message)
-        {
-            LogEntries.Add(new LogEntry(DateTime.Now, severity, message));
-        }
-
-        private void Callback(IAsyncResult result)
-        {
-            if (result == null)
-            {
-                throw new Exception(string.Format("Result was null"));
+                return;
             }
-            using (Screenshot screenshot = _captureProcess.CaptureInterface.EndGetScreenshot(result))
+
+            // Go to next wizard page
+            VerifyDataPage verifyDataPage = new VerifyDataPage(_commodityNameRepository, parsedScreenshot, stationSearchResult, Settings.Credentials, Logger);
+            verifyDataPage.ShowDialog();
+
+            if (verifyDataPage.Success)
             {
+                MessageBoxResult result = MessageBox.Show("Successfully imported data. Delete the involved screenshots?", Title, MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    foreach (string path in selectedPaths)
+                    {
+                        File.Delete(path);
+                    }
+                    UpdateFilesList();
+                }
+            }
+        }
+
+        private StationSearchResult GetStationSearchResult(ParsedScreenshot parsedScreenshot)
+        {
+            ProgressDialogResult dialogResult = ProgressDialog.Execute(this, "Getting station information from Thrudd's website", () =>
+            {
+                Client client = new Client(Logger);
                 try
                 {
-                    if (screenshot == null)
+                    ProgressDialog.Current.ReportWithCancellationCheck(0, "Logging in");
+                    client.Login(Settings.Credentials);
+
+                    ProgressDialog.Current.ReportWithCancellationCheck(20, "Searching for station ({0})", parsedScreenshot.StationName);
+                    List<AdminSearchResultItem> searchResult = client.DoAdminSearchQuery(parsedScreenshot.StationName);
+
+                    List<AdminSearchResultItem> stationResults = searchResult.Where(a => string.Compare(parsedScreenshot.StationName, a.Station, StringComparison.InvariantCultureIgnoreCase) == 0).ToList();
+
+                    if (stationResults.Count == 0)
                     {
-                        LogThroughDispatcher(MessageType.Error, "Screenshot was null");
-                        return;
+                        MessageBox.Show(
+                            string.Format(
+                                "Failed to find the station ({0}) on Thrudd's website. Please register the station on the website and try again", parsedScreenshot.StationName));
+                        //TODO Add support for registering this station from the application
+                        return null;
                     }
-                    if (screenshot.CapturedBitmap == null)
+
+                    AdminSearchResultItem stationResult;
+                    if (stationResults.Count == 1)
                     {
-                        LogThroughDispatcher(MessageType.Error, "Screenshot.CapturedBitmap was null");
-                        return;
+                        stationResult = stationResults[0];
+                    }
+                    else
+                    {
+                        int? systemId = SystemSelector.Show(this, stationResults);
+                        if (!systemId.HasValue)
+                        {
+                            return null;
+                        }
+                        stationResult = stationResults.Single(a => a.SystemId == systemId);
                     }
 
-                    byte[] bytes = screenshot.CapturedBitmap;
-                    File.WriteAllBytes(GetNextFilenameBmp(@"c:\tmp\screens"), bytes);
-
-                    LogThroughDispatcher(MessageType.Information, "Screen capture successful");
-
-                    Bitmap bitmap = new Bitmap(new MemoryStream(bytes));
+                    ProgressDialog.Current.ReportWithCancellationCheck(40, "Receiving station commodities");
+                    int stationId = stationResult.StationId;
+                    StationCommoditiesResult commodities = client.GetStationCommodities(stationId);
+                    List<StationCommoditiesData> stationCommodities = new List<StationCommoditiesData>();
+                    if (commodities != null)
+                    {
+                        stationCommodities = commodities.StationCommodities;
+                    }
+                    return new StationSearchResult(stationCommodities, stationResult);
                 }
-                catch (Exception e)
+                finally
                 {
-                    LogThroughDispatcher(MessageType.Error, e.ToString());
+                    ProgressDialog.Current.ReportWithCancellationCheck(90, "Logging out");
+                    client.Logout();
                 }
-                catch
-                {
-                    LogThroughDispatcher(MessageType.Error, "Something undefined but bad happened");
-                }
-            }
-        }
 
-        private static int _fileNameCounterBmp = 1;
-        private static string GetNextFilenameBmp(string path)
-        {
-            while (File.Exists(Path.Combine(path, string.Format("{0}.bmp", _fileNameCounterBmp))))
+            }, new ProgressDialogSettings(true, false, false));
+
+            if (dialogResult.OperationFailed)
             {
-                ++_fileNameCounterBmp;
+                throw new Exception("Exception during Thrudd website operations", dialogResult.Error);
             }
 
-            return Path.Combine(path, string.Format("{0}.bmp", _fileNameCounterBmp));
+            StationSearchResult stationSearchResult = (StationSearchResult)dialogResult.Result;
+
+            return stationSearchResult;
         }
 
-        //private void AddRandomEntry()
-        //{
-        //    Dispatcher.BeginInvoke((Action) (() => _logEntries.Add(GetRandomEntry())));
-        //}
+        public ObservableCollection<string> Files
+        {
+            get { return _files; }
+            set
+            {
+                if (_files == value)
+                {
+                    return;
+                }
+                _files = value;
+                RaisePropertyChanged("Files");
+            }
+        }
 
-        //private LogEntry GetRandomEntry()
-        //{
-        //    if (random.Next(1,10) > 1)
-        //    {
-        //        return new LogEntry()
-        //        {
-        //            Index = index++,
-        //            DateTime = DateTime.Now,
-        //            Message = string.Join(" ", Enumerable.Range(5, random.Next(10, 50))
-        //                                                 .Select(x => words[random.Next(0, maxword)])),
-        //        };
-        //    }
+        public string SelectedFile
+        {
+            get { return _selectedFile; }
+            set
+            {
+                if (_selectedFile == value)
+                {
+                    return;
+                }
+                _selectedFile = value;
+                RaisePropertyChanged("SelectedFile");
+                RaisePropertyChanged("SelectedImage");
+            }
+        }
 
-        //    return new CollapsibleLogEntry()
-        //               {
-        //                   Index = index++,
-        //                   DateTime = DateTime.Now,
-        //                   Message = string.Join(" ", Enumerable.Range(5, random.Next(10, 50))
-        //                                                .Select(x => words[random.Next(0, maxword)])),
-        //                   Contents = Enumerable.Range(5, random.Next(5, 10))
-        //                                        .Select(i => GetRandomEntry())
-        //                                        .ToList()
-        //               };
+        private List<string> GetSelectedPaths()
+        {
+            List<string> paths = new List<string>();
+            foreach (string fileName in FileList.SelectedItems)
+            {
+                paths.Add(Path.Combine(Settings.ScreenshotFolder, fileName));
+            }
+            return paths;
+        }
 
-        //}
+        public BitmapImage SelectedImage
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_selectedFile))
+                {
+                    return null;
+                }
+
+                BitmapImage image = new BitmapImage();
+                using (FileStream stream = new FileStream(Path.Combine(Settings.ScreenshotFolder, _selectedFile), FileMode.Open, FileAccess.Read))
+                {
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.StreamSource = stream;
+                    image.EndInit();
+                }
+                return image;
+            }
+        }
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
 }

@@ -1,0 +1,22 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        WindowStartupLocation="CenterOwner"
+        mc:Ignorable="d" x:Class="EliteTrader.SystemSelector"
+        Title="Please select system" Height="108.2" Width="377.6">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ComboBox Grid.Row="0" Grid.Column="0" Margin="5" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" ItemsSource="{Binding Systems}" DisplayMemberPath="System"
+		SelectedValuePath="SystemId" SelectedValue="{Binding SelectedSystemId}" />
+        <Button Grid.Row="2" Grid.Column="0" Command="{Binding OkCommand}" Width="50" Margin="5" IsDefault="True" Content="Ok" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+</Window>

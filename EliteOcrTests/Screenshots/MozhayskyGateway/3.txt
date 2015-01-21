@@ -1,0 +1,145 @@
+{
+  "StationName": "MOZHAYSKY GATEWAY",
+  "Description": {
+    "Wealth": "Normal",
+    "Population": "Large",
+    "PrimaryEconomy": "Industrial",
+    "SecondaryEconomy": null,
+    "Allegiance": "Empire",
+    "Government": "Corporate"
+  },
+  "Items": [
+    {
+      "Name": "ImperialSlaves",
+      "RareName": null,
+      "Sell": 15909,
+      "Buy": 16005,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 17454,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 16485
+    },
+    {
+      "Name": "AutoFabricators",
+      "RareName": null,
+      "Sell": 4292,
+      "Buy": null,
+      "Demand": 20631,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 3937
+    },
+    {
+      "Name": "ComputerComponents",
+      "RareName": null,
+      "Sell": 356,
+      "Buy": 374,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 3359,
+      "SupplyStatus": "High",
+      "GalacticAverage": 631
+    },
+    {
+      "Name": "HESuits",
+      "RareName": null,
+      "Sell": 427,
+      "Buy": null,
+      "Demand": 293631,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 349
+    },
+    {
+      "Name": "Robotics",
+      "RareName": null,
+      "Sell": 2201,
+      "Buy": null,
+      "Demand": 29988,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1976
+    },
+    {
+      "Name": "Leather",
+      "RareName": null,
+      "Sell": 306,
+      "Buy": null,
+      "Demand": 361822,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 240
+    },
+    {
+      "Name": "NaturalFabrics",
+      "RareName": null,
+      "Sell": 587,
+      "Buy": null,
+      "Demand": 1296794,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 493
+    },
+    {
+      "Name": "SyntheticFabrics",
+      "RareName": null,
+      "Sell": 316,
+      "Buy": null,
+      "Demand": 638798,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 252
+    },
+    {
+      "Name": "Biowaste",
+      "RareName": null,
+      "Sell": 13,
+      "Buy": 18,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 8571,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 74
+    },
+    {
+      "Name": "Scrap",
+      "RareName": null,
+      "Sell": 27,
+      "Buy": 31,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 136374,
+      "SupplyStatus": "High",
+      "GalacticAverage": 96
+    },
+    {
+      "Name": "NonLethalWpns",
+      "RareName": null,
+      "Sell": 2201,
+      "Buy": null,
+      "Demand": 903,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1976
+    },
+    {
+      "Name": "ReactiveArmour",
+      "RareName": null,
+      "Sell": 2479,
+      "Buy": null,
+      "Demand": 710,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 2235
+    }
+  ]
+}
