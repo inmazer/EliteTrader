@@ -7,20 +7,28 @@
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" InstallPrivileges="elevated" />
 		<MediaTemplate EmbedCab="yes" />
     <Upgrade Id="$(var.UpgradeCode)">
-      <UpgradeVersion OnlyDetect="yes" Minimum="$(var.VersionNumber)" IncludeMinimum="no" Property="NEWER_VERSION_FOUND" />
-      <UpgradeVersion Minimum="0.0.0.0" IncludeMinimum="yes" Maximum="$(var.VersionNumber)" IncludeMaximum="no" MigrateFeatures="yes" Property="OLDER_VERSION_FOUND" />
+      <!-- Detect older product versions -->
+      <UpgradeVersion OnlyDetect="no" IncludeMinimum="yes" IncludeMaximum="yes" Minimum="0.0.1" Maximum="$(var.VersionNumber)" Property="PREVIOUSVERSIONSINSTALLED"/>
+      <!-- Detect newer product versions -->
+      <UpgradeVersion OnlyDetect="yes" IncludeMinimum="no" Minimum="$(var.VersionNumber)" Property="NEWERVERSIONDETECTED"/>
     </Upgrade>
+    <CustomActionRef Id="WixExitEarlyWithSuccess"/>
+    
     <PropertyRef Id="NETFRAMEWORK45" />
+    
     <Condition Message="Microsoft .Net Framework 4.5 is required"><![CDATA[Installed OR NETFRAMEWORK45]]></Condition>
     <Condition Message="Windows version is too low, please upgrade to at least Windows 7"><![CDATA[Installed OR (VersionNT >= 601)]]></Condition>
     <Condition Message="You need to be an administrator to install this product.">Privileged</Condition>
 
+    <!--<MajorUpgrade AllowDowngrades="no" AllowSameVersionUpgrades="no" IgnoreRemoveFailure="no" DowngradeErrorMessage="A later version of Elite Trader is already installed. Setup will now exit." Schedule="afterInstallInitialize"/>-->
+
     <InstallExecuteSequence>
-      <StopServices>VersionNT</StopServices>
+      
+      <!--<StopServices>VersionNT</StopServices>-->
       <RemoveExistingProducts After="InstallInitialize" />
-      <DeleteServices>VersionNT AND REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</DeleteServices>
-      <InstallServices>VersionNT AND NOT OLDER_VERSION_FOUND</InstallServices>
-      <StartServices>VersionNT</StartServices>
+      <!--<DeleteServices>VersionNT AND REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</DeleteServices>-->
+      <!--<InstallServices>VersionNT AND NOT OLDER_VERSION_FOUND</InstallServices>-->
+      <!--<StartServices>VersionNT</StartServices>--> 
     </InstallExecuteSequence>
       
     <UI Id="WixUI_FeatureTreeCustom">

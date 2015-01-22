@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-	<Bundle Name="Elite Trader" Version="1.0.0.0" Manufacturer="iNMazer" UpgradeCode="5c774abe-e6e8-4ce1-a17e-9556e18c3c6d" IconSourceFile="$(var.SolutionDir)\EliteTrader\Icons\elitetrader_icon.ico">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+	<Bundle Name="Elite Trader" Version="1.0.0.0" Manufacturer="iNMazer" UpgradeCode="5c774abe-e6e8-4ce1-a17e-9556e18c3c6d" IconSourceFile="$(var.SolutionDir)\EliteTrader\Icons\elitetrader_icon.ico" DisableModify="yes" DisableRepair="yes" Compressed="yes">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
       <bal:WixStandardBootstrapperApplication
         LicenseUrl=""
         xmlns:bal="http://schemas.microsoft.com/wix/BalExtension" />
     </BootstrapperApplicationRef>
+
     <WixVariable Id="WixStdbaLogo" Value="$(var.SolutionDir)\EliteTrader\Icons\install_image.png" />
     <Chain>
 
       <PackageGroupRef Id="NetFx45Web"/>
+      <RollbackBoundary />
       <PackageGroupRef Id="redist"/>
-
-      <MsiPackage SourceFile="$(var.SolutionDir)EliteTraderInternalSetup\bin\Release\EliteTraderInternalSetup.msi" >
-        <MsiProperty Name='INSTALLFOLDER' Value='[INSTALLDIR]'/>
+      <RollbackBoundary />
+      
+      <MsiPackage SourceFile="$(var.SolutionDir)EliteTraderInternalSetup\bin\Release\EliteTraderInternalSetup.msi">
+        <MsiProperty Name="INSTALLFOLDER" Value="[INSTALLDIR]" />
       </MsiPackage>
 
     </Chain>
