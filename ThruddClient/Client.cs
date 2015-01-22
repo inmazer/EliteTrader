@@ -126,6 +126,8 @@ Connection: close
 
         public GetSelectListsResult GetSelectLists()
         {
+            _logger.Log(string.Format("-------- GetSelectLists ---------"));
+            
             return DoGetRequest<GetSelectListsResult>(AdminGetSelectListsUri);
         }
 
@@ -135,7 +137,9 @@ Connection: close
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
 
-            DoPostRequest(AdminDeleteCommodityUri, bytes, "application/json");
+            _logger.Log(string.Format("-------- DeleteCommodity ---------"));
+
+            DoPostRequest(AdminDeleteCommodityUri, bytes, "application/json", false);
         }
 
         public void AddCommodity(int stationId, EnumCommodityItemName commodity, int buy, int sell, EnumCommodityCategory category)
@@ -144,7 +148,9 @@ Connection: close
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
 
-            DoPostRequest(AdminAddCommodityUri, bytes, "application/json");
+            _logger.Log(string.Format("-------- AddCommodity ---------"));
+
+            DoPostRequest(AdminAddCommodityUri, bytes, "application/json", false);
         }
 
         public void ConfirmCommodity(int stationCommodityId, EnumCommodityCategory category)
@@ -153,7 +159,9 @@ Connection: close
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
 
-            DoPostRequest(AdminConfirmCommodityUri, bytes, "application/json");
+            _logger.Log(string.Format("-------- ConfirmCommodity ---------"));
+
+            DoPostRequest(AdminConfirmCommodityUri, bytes, "application/json", false);
         }
 
         public UpdateCommodityResponse UpdateCommodity(int stationCommodityId, EnumCommodityAction action, int value)
@@ -162,40 +170,46 @@ Connection: close
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
 
-            string responseStr;
-            using (HttpWebResponse response = DoPostRequest(AdminUpdateCommodityUri, bytes, "application/x-www-form-urlencoded; charset=UTF-8"))
-            {
-                Stream responseStream = response.GetResponseStream();
-                StreamReader sr = new StreamReader(responseStream);
-                responseStr = sr.ReadToEnd();
-            }
+            _logger.Log(string.Format("-------- UpdateCommodity ---------"));
+
+            string responseStr = DoPostRequest(AdminUpdateCommodityUri, bytes, "application/x-www-form-urlencoded; charset=UTF-8", true);
 
             return JsonConvert.DeserializeObject<UpdateCommodityResponse>(responseStr);
         }
 
         public List<AdminSearchResultItem> DoAdminSearchQuery(string query)
         {
+            _logger.Log(string.Format("-------- DoAdminSearchQuery ---------"));
+
             return DoGetRequest<List<AdminSearchResultItem>>(AdminSearchUri, "query", query);
         }
 
         public SystemData GetSystemData(int systemId)
         {
+            _logger.Log(string.Format("-------- GetSystemData ---------"));
+
             return DoGetRequest<SystemData>(AdminSystemsUri, "id", systemId.ToString());
         }
 
         public SystemStationsData GetSystemStationsData(int systemId)
         {
+            _logger.Log(string.Format("-------- GetSystemStationsData ---------"));
+
             return DoGetRequest<SystemStationsData>(AdminSystemStationsUri, "id", systemId.ToString());
         }
 
         public StationCommoditiesResult GetStationCommodities(int stationId)
         {
+            _logger.Log(string.Format("-------- GetStationCommodities ---------"));
+
             return DoGetRequest<StationCommoditiesResult>(AdminStationCommoditiesUri, new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("id", stationId.ToString()), new KeyValuePair<string, string>("categoryId", "0") });
         }
 
         public void FindTrades(FindTradesInfo findTradesInfo)
         {
-            DoPostRequest(FindTradesUri, findTradesInfo);
+            _logger.Log(string.Format("-------- FindTrades ---------"));
+
+            DoPostRequest(FindTradesUri, findTradesInfo, false);
         }
 
         public void Login(ThruddCredentials credentials)
@@ -226,17 +240,19 @@ Connection: close
                     _logger.Log(string.Format("Got status code ({0})", firstRequestResponse.StatusCode));
                     if (firstRequestResponse.StatusCode != HttpStatusCode.OK)
                     {
-                        Stream stream = firstRequestResponse.GetResponseStream();
-                        string streamContent = "<null>";
-                        if (stream != null)
+                        using (Stream stream = firstRequestResponse.GetResponseStream())
                         {
-                            StreamReader sr = new StreamReader(stream, Encoding.UTF8);
-                            streamContent = sr.ReadToEnd();
-                        }
+                            string streamContent = "<null>";
+                            if (stream != null)
+                            {
+                                StreamReader sr = new StreamReader(stream, Encoding.UTF8);
+                                streamContent = sr.ReadToEnd();
+                            }
 
-                        throw new Exception(
-                            string.Format("First page load got status code ({0}). The stream content was:\r\n{1}",
-                                firstRequestResponse.StatusCode, streamContent));
+                            throw new Exception(
+                                string.Format("First page load got status code ({0}). The stream content was:\r\n{1}",
+                                    firstRequestResponse.StatusCode, streamContent));
+                        }
                     }
 
                     Cookie reqVerCookie = firstRequestResponse.Cookies[ReqVerCookieName];
@@ -265,9 +281,10 @@ Connection: close
                 loginPost.ContentLength = loginPostBytes.Length;
                 loginPost.AllowAutoRedirect = false;
                 loginPost.Timeout = _clientConfig.Timeout;
-                Stream loginPostRequestStream = loginPost.GetRequestStream();
-                loginPostRequestStream.Write(loginPostBytes, 0, loginPostBytes.Length);
-                loginPostRequestStream.Close();
+                using (Stream loginPostRequestStream = loginPost.GetRequestStream())
+                {
+                    loginPostRequestStream.Write(loginPostBytes, 0, loginPostBytes.Length);
+                }
 
                 _logger.Log("Getting response");
                 string authToken;
@@ -276,16 +293,19 @@ Connection: close
                     _logger.Log(string.Format("Got status code ({0})", loginResponse.StatusCode));
                     if (loginResponse.StatusCode != HttpStatusCode.OK && loginResponse.StatusCode != HttpStatusCode.Found)
                     {
-                        Stream stream = loginResponse.GetResponseStream();
-                        string streamContent = "<null>";
-                        if (stream != null)
+                        using (Stream stream = loginResponse.GetResponseStream())
                         {
-                            StreamReader sr = new StreamReader(stream, Encoding.UTF8);
-                            streamContent = sr.ReadToEnd();
-                        }
+                            string streamContent = "<null>";
+                            if (stream != null)
+                            {
+                                StreamReader sr = new StreamReader(stream, Encoding.UTF8);
+                                streamContent = sr.ReadToEnd();
+                            }
 
-                        throw new Exception(string.Format("Login got status code ({0}). The stream content was:\r\n{1}",
-                            loginResponse.StatusCode, streamContent));
+                            throw new Exception(
+                                string.Format("Login got status code ({0}). The stream content was:\r\n{1}",
+                                    loginResponse.StatusCode, streamContent));
+                        }
                     }
 
                     Cookie authCookie = loginResponse.Cookies[AuthCookieName];
@@ -338,56 +358,60 @@ Connection: close
                     _logger.Log(string.Format("Got status code ({0})", dummyResponse.StatusCode));
                     if (dummyResponse.StatusCode != HttpStatusCode.OK)
                     {
-                        Stream stream = dummyResponse.GetResponseStream();
-                        string streamContent = "<null>";
-                        if (stream != null)
+                        using (Stream stream = dummyResponse.GetResponseStream())
                         {
-                            StreamReader sr = new StreamReader(stream, Encoding.UTF8);
-                            streamContent = sr.ReadToEnd();
-                        }
+                            string streamContent = "<null>";
+                            if (stream != null)
+                            {
+                                StreamReader sr = new StreamReader(stream, Encoding.UTF8);
+                                streamContent = sr.ReadToEnd();
+                            }
 
-                        dummyResponse.Close();
-                        throw new Exception(
-                            string.Format(
-                                "Unexpected response status code to dummy request ({0}). The stream content was:\r\n{1}",
-                                dummyResponse.StatusCode, streamContent));
+                            dummyResponse.Close();
+                            throw new Exception(
+                                string.Format(
+                                    "Unexpected response status code to dummy request ({0}). The stream content was:\r\n{1}",
+                                    dummyResponse.StatusCode, streamContent));
+                        }
                     }
                     _logger.Log("Getting response stream");
-                    Stream dummyStream = dummyResponse.GetResponseStream();
-                    if (dummyStream == null)
+                    using (Stream dummyStream = dummyResponse.GetResponseStream())
                     {
-                        throw new Exception(string.Format("Stream was null"));
-                    }
-
-                    _logger.Log("Parsing response stream looking for request verification token");
-                    StreamReader dummyStreamReader = new StreamReader(dummyStream, Encoding.UTF8);
-                    string line = null;
-                    string logoutReqVerToken = null;
-                    while ((line = dummyStreamReader.ReadLine()) != null)
-                    {
-                        if (line.Contains("logoutForm") && line.Contains("__RequestVerificationToken"))
+                        if (dummyStream == null)
                         {
-                            int index = line.IndexOf("value=\"", StringComparison.Ordinal);
-                            if (index < 0)
-                            {
-                                throw new Exception(
-                                    string.Format("Unable to properly parse logoutForm info. Value not found."));
-                            }
-                            line = line.Substring(index + 7);
-                            int endIndex = line.IndexOf("\"", StringComparison.Ordinal);
-                            logoutReqVerToken = line.Substring(0, endIndex);
-
-                            break;
+                            throw new Exception(string.Format("Stream was null"));
                         }
-                    }
-                    if (logoutReqVerToken == null)
-                    {
-                        throw new Exception(string.Format("Unable to get logout request verification token"));
-                    }
 
-                    _logger.Log("Successfully found request verification token");
+                        _logger.Log("Parsing response stream looking for request verification token");
+                        StreamReader dummyStreamReader = new StreamReader(dummyStream, Encoding.UTF8);
+                        string line = null;
+                        string logoutReqVerToken = null;
+                        while ((line = dummyStreamReader.ReadLine()) != null)
+                        {
+                            if (line.Contains("logoutForm") && line.Contains("__RequestVerificationToken"))
+                            {
+                                int index = line.IndexOf("value=\"", StringComparison.Ordinal);
+                                if (index < 0)
+                                {
+                                    throw new Exception(
+                                        string.Format("Unable to properly parse logoutForm info. Value not found."));
+                                }
+                                line = line.Substring(index + 7);
+                                int endIndex = line.IndexOf("\"", StringComparison.Ordinal);
+                                logoutReqVerToken = line.Substring(0, endIndex);
 
-                    logoutStr = string.Format("{0}={1}", ReqVerCookieName, logoutReqVerToken);
+                                break;
+                            }
+                        }
+                        if (logoutReqVerToken == null)
+                        {
+                            throw new Exception(string.Format("Unable to get logout request verification token"));
+                        }
+
+                        _logger.Log("Successfully found request verification token");
+
+                        logoutStr = string.Format("{0}={1}", ReqVerCookieName, logoutReqVerToken);
+                    }
                 }
                 
 
@@ -405,9 +429,10 @@ Connection: close
                 logoutRequest.ContentLength = logoutBytes.Length;
                 logoutRequest.AllowAutoRedirect = false;
                 logoutRequest.Timeout = _clientConfig.Timeout;
-                Stream findTradesRequestStream = logoutRequest.GetRequestStream();
-                findTradesRequestStream.Write(logoutBytes, 0, logoutBytes.Length);
-                findTradesRequestStream.Close();
+                using (Stream findTradesRequestStream = logoutRequest.GetRequestStream())
+                {
+                    findTradesRequestStream.Write(logoutBytes, 0, logoutBytes.Length);
+                }
 
                 _logger.Log("Getting response");
                 using (HttpWebResponse logoutResponse = (HttpWebResponse) logoutRequest.GetResponse())
@@ -416,18 +441,20 @@ Connection: close
                     if (logoutResponse.StatusCode != HttpStatusCode.OK &&
                         logoutResponse.StatusCode != HttpStatusCode.Found)
                     {
-                        Stream stream = logoutResponse.GetResponseStream();
-                        string streamContent = "<null>";
-                        if (stream != null)
+                        using (Stream stream = logoutResponse.GetResponseStream())
                         {
-                            StreamReader sr = new StreamReader(stream, Encoding.UTF8);
-                            streamContent = sr.ReadToEnd();
-                        }
+                            string streamContent = "<null>";
+                            if (stream != null)
+                            {
+                                StreamReader sr = new StreamReader(stream, Encoding.UTF8);
+                                streamContent = sr.ReadToEnd();
+                            }
 
-                        throw new Exception(string.Format("Logout got status code ({0}). The stream content was:\r\n{1}",
-                            logoutResponse.StatusCode, streamContent));
+                            throw new Exception(
+                                string.Format("Logout got status code ({0}). The stream content was:\r\n{1}",
+                                    logoutResponse.StatusCode, streamContent));
+                        }
                     }
-                    logoutResponse.Close();
                     _logger.Log("Logout completed");
                 }
                 
@@ -468,6 +495,7 @@ Connection: close
                 }
             }
 
+            _logger.Log(string.Format("Creating request for ({0})", uri));
             HttpWebRequest request = WebRequest.CreateHttp(string.Format("{0}{1}", uri, str));
             AddStandardHeaders(request);
             request.CookieContainer = new CookieContainer();
@@ -478,28 +506,23 @@ Connection: close
             request.Timeout = _clientConfig.Timeout;
             request.Accept = "application/json";
 
-            string responseStr;
-            using (HttpWebResponse response = GetResponse(request))
-            {
-                Stream responseStream = response.GetResponseStream();
-                StreamReader sr = new StreamReader(responseStream);
-                responseStr = sr.ReadToEnd();
-            }
+            string responseStr = GetResponse(request, true);
 
             return JsonConvert.DeserializeObject<T>(responseStr);
         }
 
-        private HttpWebResponse DoPostRequest(Uri uri, object o)
+        private void DoPostRequest(Uri uri, object o, bool readResponse)
         {
             byte[] bytes = Serialize(o);
 
-            return DoPostRequest(uri, bytes, "application/json");
+            DoPostRequest(uri, bytes, "application/json", false);
         }
 
-        private HttpWebResponse DoPostRequest(Uri uri, byte[] bytes, string contentType)
+        private string DoPostRequest(Uri uri, byte[] bytes, string contentType, bool readResponse)
         {
             VerifyLoggedIn();
 
+            _logger.Log(string.Format("Creating request for ({0})", uri));
             HttpWebRequest request = WebRequest.CreateHttp(uri);
             AddStandardHeaders(request);
             request.CookieContainer = new CookieContainer();
@@ -510,11 +533,12 @@ Connection: close
             request.ContentLength = bytes.Length;
             request.AllowAutoRedirect = false;
             request.Timeout = _clientConfig.Timeout;
-            Stream requestStream = request.GetRequestStream();
-            requestStream.Write(bytes, 0, bytes.Length);
-            requestStream.Close();
+            using (Stream requestStream = request.GetRequestStream())
+            {
+                requestStream.Write(bytes, 0, bytes.Length);
+            }
 
-            return GetResponse(request);
+            return GetResponse(request, readResponse);
         }
 
 
@@ -527,23 +551,40 @@ Connection: close
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
         }
 
-        private static HttpWebResponse GetResponse(HttpWebRequest request)
+        private string GetResponse(HttpWebRequest request, bool readResponse)
         {
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Found)
+            _logger.Log("Getting response");
+            using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
             {
-                Stream stream = response.GetResponseStream();
-                string streamContent = "<null>";
-                if (stream != null)
+                _logger.Log(string.Format("Got status code ({0})", response.StatusCode));
+                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Found)
                 {
-                    StreamReader sr = new StreamReader(stream, Encoding.UTF8);
-                    streamContent = sr.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        string streamContent = "<null>";
+                        if (stream != null)
+                        {
+                            StreamReader sr = new StreamReader(stream, Encoding.UTF8);
+                            streamContent = sr.ReadToEnd();
+                        }
+
+                        throw new Exception(
+                            string.Format("Request got status code ({0}). The stream content was:\r\n{1}",
+                                response.StatusCode, streamContent));
+                    }
                 }
 
-                throw new Exception(string.Format("Request got status code ({0}). The stream content was:\r\n{1}", response.StatusCode, streamContent));
+                if (readResponse)
+                {
+                    _logger.Log("Reading response stream");
+                    using (Stream responseStream = response.GetResponseStream())
+                    {
+                        StreamReader sr = new StreamReader(responseStream);
+                        return sr.ReadToEnd();
+                    }
+                }
             }
-
-            return response;
+            return null;
         }
 
         private static byte[] Serialize(object o)
