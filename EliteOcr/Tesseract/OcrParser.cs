@@ -317,6 +317,8 @@ namespace EliteTrader.EliteOcr.Tesseract
 
             if (!i.HasValue)
             {
+                bitmap.Save(@"c:\tmp\tore.bmp");
+
                 throw new Exception(
                     string.Format(
                         "Failed to parse galactic average from strings ({0}) on commoditiy item ({1})", string.Join(", ", results),

@@ -37,5 +37,31 @@ namespace EliteOcrTests
 
             Compare(@"Screenshots\KarmanVision\combined.txt", actual);
         }
+
+        //[TestMethod]
+        //[DeploymentItem(@"Screenshots\KarmanVision\720p_0000.png", @"Screenshots\KarmanVision")]
+        //[DeploymentItem(@"Screenshots\KarmanVision\720p_0001.png", @"Screenshots\KarmanVision")]
+        //[DeploymentItem(@"Screenshots\KarmanVision\720p_0002.png", @"Screenshots\KarmanVision")]
+        //[DeploymentItem(@"Screenshots\KarmanVision\720p_0003.png", @"Screenshots\KarmanVision")]
+        //[DeploymentItem(@"Screenshots\KarmanVision\720p_0004.png", @"Screenshots\KarmanVision")]
+        //[DeploymentItem(@"Screenshots\KarmanVision\combined720p.txt", @"Screenshots\KarmanVision")]
+        //public void Test720p()
+        //{
+        //    ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
+        //    List<Bitmap> bitmaps = new List<Bitmap>();
+        //    bitmaps.Add(new Bitmap(@"Screenshots\KarmanVision\720p_0000.png"));
+        //    //bitmaps.Add(new Bitmap(@"Screenshots\KarmanVision\720p_0001.png"));
+        //    //bitmaps.Add(new Bitmap(@"Screenshots\KarmanVision\720p_0002.png"));
+        //    //bitmaps.Add(new Bitmap(@"Screenshots\KarmanVision\720p_0003.png"));
+        //    //bitmaps.Add(new Bitmap(@"Screenshots\KarmanVision\720p_0004.png"));
+
+        //    ParsedScreenshot actual = screenshotParser.ParseMultiple(bitmaps);
+
+        //    Console.WriteLine(actual);
+        //    string str = Serialize(actual);
+        //    Console.WriteLine(str);
+
+        //    //Compare(@"Screenshots\KarmanVision\combined720p.txt", actual);
+        //}
     }
 }

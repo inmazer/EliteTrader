@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-	<Bundle Name="Elite Trader" Version="1.0.0.0" Manufacturer="iNMazer" UpgradeCode="5c774abe-e6e8-4ce1-a17e-9556e18c3c6d" IconSourceFile="$(var.SolutionDir)\EliteTrader\Icons\elitetrader_icon.ico" DisableModify="yes" DisableRepair="yes" Compressed="yes">
+  <?include $(var.SolutionDir)EliteTraderInternalSetup\Includes\Defines.wxi ?>
+	<Bundle Name="Elite Trader" Version="$(var.VersionNumber)" Manufacturer="iNMazer" UpgradeCode="5c774abe-e6e8-4ce1-a17e-9556e18c3c6d" IconSourceFile="$(var.SolutionDir)\EliteTrader\Icons\elitetrader_icon.ico" DisableModify="yes" DisableRepair="yes" Compressed="yes">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
       <bal:WixStandardBootstrapperApplication
         LicenseUrl=""

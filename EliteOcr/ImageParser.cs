@@ -22,6 +22,15 @@ namespace EliteTrader.EliteOcr
             int screenshotWidth = screenshot.Width;
             int screenshotHeight = screenshot.Height;
 
+            if (screenshotWidth < 1920 || screenshotHeight < 1080)
+            {
+                throw new Exception(string.Format("The only supported resolution is 1920x1080 and above at the moment"));
+            }
+            if (screenshotWidth/screenshotHeight != 16/9)
+            {
+                throw new Exception(string.Format("The only supported aspect ratio is 16:9 at the moment"));
+            }
+
             int clockAreaX = (screenshotWidth * 1705) / 1920;
             int clockAreaWidth = ((screenshotWidth * 1839) / 1920) - clockAreaX;
             int clockAreaY = (screenshotHeight * 68) / 1080;
@@ -40,6 +49,15 @@ namespace EliteTrader.EliteOcr
 
             int screenshotWidth = screenshot.Width;
             int screenshotHeight = screenshot.Height;
+
+            if (screenshotWidth < 1920 || screenshotHeight < 1080)
+            {
+                throw new Exception(string.Format("The only supported resolution is 1920x1080 and above at the moment"));
+            }
+            if (screenshotWidth / screenshotHeight != 16 / 9)
+            {
+                throw new Exception(string.Format("The only supported aspect ratio is 16:9 at the moment"));
+            }
 
             int nameAreaX = (screenshotWidth * 77) / 1920;
             int nameAreaWidth = ((screenshotWidth * 1000) / 1920) - nameAreaX;

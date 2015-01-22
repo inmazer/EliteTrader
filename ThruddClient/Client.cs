@@ -544,11 +544,12 @@ Connection: close
 
         private void AddStandardHeaders(HttpWebRequest request)
         {
-            request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36";
-            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-            request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
-            request.Headers.Add(HttpRequestHeader.AcceptLanguage, "en-US,en;q=0.5");
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            //request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36";
+            //request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+            //request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
+            //request.Headers.Add(HttpRequestHeader.AcceptLanguage, "en-US,en;q=0.5");
+            //request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            //request.Referer = "http://www.elitetradingtool.co.uk/Admin/";
         }
 
         private string GetResponse(HttpWebRequest request, bool readResponse)
