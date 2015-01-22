@@ -5,6 +5,8 @@ Thumbs.db
 *.stackdump
 *.obj
 *.exe
+!vcredist_x64.exe
+!vcredist_x86.exe
 *.pdb
 *.user
 *.aps
