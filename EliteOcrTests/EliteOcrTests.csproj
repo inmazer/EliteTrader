@@ -105,6 +105,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Screenshots\BaylissLanding\combined.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Screenshots\BaylissLanding\ef404df6-8a16-4c70-a2a2-a71e91e5c8cf_0.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

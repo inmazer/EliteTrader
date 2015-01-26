@@ -4,7 +4,7 @@
     "Wealth": "Normal",
     "Population": "Large",
     "PrimaryEconomy": "Industrial",
-    "SecondaryEconomy": null,
+    "SecondaryEconomy": "Extraction",
     "Allegiance": "Empire",
     "Government": "Patronage"
   },

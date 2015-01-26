@@ -68,6 +68,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AspectRatio.cs" />
     <Compile Include="CommodityItem.cs" />
     <Compile Include="CommodityItemBitmaps.cs" />
     <Compile Include="CommodityName.cs" />
@@ -77,6 +78,8 @@
     <Compile Include="Data\DetfaultRareCommodities.cs" />
     <Compile Include="Enums\EnumSupplyStatus.cs" />
     <Compile Include="Enums\EnumCommodityItemName.cs" />
+    <Compile Include="ImageCoordinates.cs" />
+    <Compile Include="ImageCoordinatesRepository.cs" />
     <Compile Include="ImageParser.cs" />
     <Compile Include="Interfaces\ICommodityNameMatcher.cs" />
     <Compile Include="Interfaces\ICommodityNameRepository.cs" />

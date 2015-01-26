@@ -12,7 +12,6 @@ namespace EliteTrader.EliteOcr
     public static class ImageParser
     {
         private const int NumberOfInterestingPixelsThreshold = 25;
-        private static decimal[] _allowedAspectRatios = new[] {16m/9m};
 
         private static readonly Guid BmpRawTypeId = Guid.Parse("b96b3cab-0728-11d3-9d7b-0000f81ef32e");
 
@@ -23,21 +22,10 @@ namespace EliteTrader.EliteOcr
             int screenshotWidth = screenshot.Width;
             int screenshotHeight = screenshot.Height;
 
-            if (screenshotWidth < 1920 || screenshotHeight < 1080)
-            {
-                throw new Exception(string.Format("The only supported resolution is 1920x1080 and above at the moment"));
-            }
-            if (!_allowedAspectRatios.Contains((decimal)screenshotWidth / screenshotHeight))
-            {
-                throw new Exception(string.Format("The only supported aspect ratios are 16:9 and 16:10 at the moment"));
-            }
 
-            int clockAreaX = (screenshotWidth * 1705) / 1920;
-            int clockAreaWidth = ((screenshotWidth * 1839) / 1920) - clockAreaX;
-            int clockAreaY = (screenshotHeight * 68) / 1080;
-            int clockAreaHeight = ((screenshotHeight * 96) / 1080) - clockAreaY;
+            ImageCoordinates imageCoordinates = ImageCoordinatesRepository.GetImageCoordinates(screenshotWidth, screenshotHeight);
 
-            Bitmap clockBitmap = GetArea(new Rectangle(clockAreaX, clockAreaY, clockAreaWidth, clockAreaHeight), screenshot, EnumTextSharpeningAlgorithm.Time);
+            Bitmap clockBitmap = GetArea(imageCoordinates.Clock, screenshot, EnumTextSharpeningAlgorithm.Time);
 
             return clockBitmap;
         }
@@ -51,34 +39,13 @@ namespace EliteTrader.EliteOcr
             int screenshotWidth = screenshot.Width;
             int screenshotHeight = screenshot.Height;
 
-            if (screenshotWidth < 1920 || screenshotHeight < 1080)
-            {
-                throw new Exception(string.Format("The only supported resolution is 1920x1080 and above at the moment"));
-            }
-            if (!_allowedAspectRatios.Contains((decimal)screenshotWidth/screenshotHeight))
-            {
-                throw new Exception(string.Format("The only supported aspect ratios are 16:9 and 16:10 at the moment"));
-            }
+            ImageCoordinates imageCoordinates = ImageCoordinatesRepository.GetImageCoordinates(screenshotWidth, screenshotHeight);
 
-            int nameAreaX = (screenshotWidth * 77) / 1920;
-            int nameAreaWidth = ((screenshotWidth * 1000) / 1920) - nameAreaX;
-            int nameAreaY = (screenshotHeight * 65) / 1080;
-            int nameAreaHeight = ((screenshotHeight * 97) / 1080) - nameAreaY;
-            Bitmap nameBitmap = GetArea(new Rectangle(nameAreaX, nameAreaY, nameAreaWidth, nameAreaHeight), screenshot, EnumTextSharpeningAlgorithm.Title);
+            Bitmap nameBitmap = GetArea(imageCoordinates.Name, screenshot, EnumTextSharpeningAlgorithm.Title);
 
-            int infoAreaX = (screenshotWidth * 77) / 1920;
-            int infoAreaWidth = ((screenshotWidth * 1300) / 1920) - infoAreaX;
-            int infoAreaY = (screenshotHeight * 96) / 1080;
-            int infoAreaHeight = ((screenshotHeight * 125) / 1080) - infoAreaY;
-            Bitmap descriptionBitmap = GetArea(new Rectangle(infoAreaX, infoAreaY, infoAreaWidth, infoAreaHeight), screenshot, EnumTextSharpeningAlgorithm.SubTitle);
+            Bitmap descriptionBitmap = GetArea(imageCoordinates.Info, screenshot, EnumTextSharpeningAlgorithm.SubTitle);
 
-            //int timeAreaX = (screenshotWidth * 1700) / 1920;
-            //int timeAreaWidth = ((screenshotWidth * 1839) / 1920) - timeAreaX;
-            //int timeAreaY = (screenshotHeight * 65) / 1080;
-            //int timeAreaHeight = ((screenshotHeight * 124) / 1080) - timeAreaY;
-            //Bitmap timestampBitmap = GetArea(new Rectangle(timeAreaX, timeAreaY, timeAreaWidth, timeAreaHeight), screenshot, EnumTextSharpeningAlgorithm.Time);
-
-            List<CommodityItemBitmaps> itemBitmapsList = GetCommodityItemBitmaps(screenshot);
+            List<CommodityItemBitmaps> itemBitmapsList = GetCommodityItemBitmaps(screenshot, imageCoordinates);
 
             return new ParsedScreenshotBitmaps(clockBitmap, nameBitmap, descriptionBitmap, itemBitmapsList);
         }
@@ -104,7 +71,7 @@ namespace EliteTrader.EliteOcr
             return converted;
         }
 
-        private static List<CommodityItemBitmaps> GetCommodityItemBitmaps(Bitmap screenshot)
+        private static List<CommodityItemBitmaps> GetCommodityItemBitmaps(Bitmap screenshot, ImageCoordinates imageCoordinates)
         {
             byte[] screenshotBuffer = new byte[screenshot.Width * screenshot.Height * 4];
 
@@ -112,17 +79,17 @@ namespace EliteTrader.EliteOcr
             Marshal.Copy(screenshotData.Scan0, screenshotBuffer, 0, screenshotBuffer.Length);
             screenshot.UnlockBits(screenshotData);
 
-            //Find row alignment by searching down using average pixel values from 420 - 1270, 600
-            int searchStartX = (screenshot.Width * 420) / 1920;
-            int searchEndX = (screenshot.Width * 1270) / 1920;
-            int searchStartY = (screenshot.Height * 600) / 1080;
-            int numberOfPixelsPerLine = (screenshot.Width * (searchEndX - searchStartX)) / 1920;
+            //Find row alignment by searching down using median pixel values from 420 - 1270, 600
+            int searchStartX = imageCoordinates.SearchStartX;
+            int searchEndX = imageCoordinates.SearchEndX;
+            int searchStartY = imageCoordinates.SearchStartY;
+            int numberOfPixelsPerLine = imageCoordinates.NumberOfPixelsPerSearchLine;
 
             int middleRowStart = -1;
             bool hasSeenBetweenRowPixel = false;
             int rowLength = screenshot.Width * 4;
             int startPixel = (searchStartY * rowLength) + (searchStartX * 4);
-            int endPixel = startPixel + (100 * rowLength);
+            int endPixel = startPixel + (100 * rowLength); //Search 100 rows
 
             //Console.WriteLine("Search start y: {0}", searchStartY);
 
@@ -134,17 +101,17 @@ namespace EliteTrader.EliteOcr
                 int numberOfSkippedPixels = 0;
                 for (int x = y; x < y + (numberOfPixelsPerLine * 4); x += 4)
                 {
-                    int realX = (x%rowLength)/4;
-                    if ((realX >= (screenshot.Width*440)/1920 && realX <= (screenshot.Width*447)/1920) ||
-                        (realX >= (screenshot.Width*529)/1920 && realX <= (screenshot.Width*536)/1920) ||
-                        (realX >= (screenshot.Width*616)/1920 && realX <= (screenshot.Width*623)/1920) ||
-                        (realX >= (screenshot.Width*709)/1920 && realX <= (screenshot.Width*716)/1920) ||
-                        (realX >= (screenshot.Width*892)/1920 && realX <= (screenshot.Width*899)/1920) ||
-                        (realX >= (screenshot.Width*1094)/1920 && realX <= (screenshot.Width*1101)/1920))
-                    {
-                        ++numberOfSkippedPixels;
-                        continue;
-                    }
+                    //int realX = (x%rowLength)/4;
+                    //if ((realX >= (screenshot.Width*440)/1920 && realX <= (screenshot.Width*447)/1920) ||
+                    //    (realX >= (screenshot.Width*529)/1920 && realX <= (screenshot.Width*536)/1920) ||
+                    //    (realX >= (screenshot.Width*616)/1920 && realX <= (screenshot.Width*623)/1920) ||
+                    //    (realX >= (screenshot.Width*709)/1920 && realX <= (screenshot.Width*716)/1920) ||
+                    //    (realX >= (screenshot.Width*892)/1920 && realX <= (screenshot.Width*899)/1920) ||
+                    //    (realX >= (screenshot.Width*1094)/1920 && realX <= (screenshot.Width*1101)/1920))
+                    //{
+                    //    ++numberOfSkippedPixels;
+                    //    continue;
+                    //}
 
                     byte red = screenshotBuffer[x + 2];
                     byte green = screenshotBuffer[x + 1];
@@ -193,46 +160,27 @@ namespace EliteTrader.EliteOcr
                 throw new Exception(string.Format("Unable to find row start"));
             }
 
-            const int totalNumberOfRows = 19; //No matter what the resolution is this seems to be constant (added 1 to catch almost obscured rows)
-            const int heightPerItem = 41;
-            int maxAllowedItemY = (screenshot.Height * 984) / 1080;
-            int itemHeight = (screenshot.Height * heightPerItem) / 1080;
-            int numberOfItemsBelow = (maxAllowedItemY - middleRowStart) / itemHeight;
-            int numberOfItemsAbove = totalNumberOfRows - numberOfItemsBelow;
-            int firstItemY = middleRowStart - (numberOfItemsAbove * itemHeight);
+            ItemCoordinates itemCoordinates = ImageCoordinatesRepository.GetItemCoordinates(middleRowStart, imageCoordinates);
 
-            int commodityNameXOffset = ((screenshot.Width * 83) / 1920) * 4;
-            int commodityNameWidth = ((screenshot.Width * 355) / 1920);
-            int sellPriceXOffset = ((screenshot.Width * 448) / 1920) * 4;
-            int sellPriceWidth = ((screenshot.Width * 81) / 1920);
-            int buyPriceXOffset = ((screenshot.Width * 536) / 1920) * 4;
-            int buyPriceWidth = ((screenshot.Width * 81) / 1920);
-            int demandXOffset = ((screenshot.Width * 715) / 1920) * 4;
-            int demandWidth = ((screenshot.Width * 173) / 1920);
-            int supplyXOffset = ((screenshot.Width * 900) / 1920) * 4;
-            int supplyWidth = ((screenshot.Width * 194) / 1920);
-            int galacticAverageXOffset = ((screenshot.Width * 1100) / 1920) * 4;
-            int galacticAverageWidth = ((screenshot.Width * 183) / 1920);
+            int capturedItemHeight = imageCoordinates.CapturedItemHeight;
 
-            int capturedItemHeight = itemHeight - 10; //Reduce the height of the captured area by 10 pixels to avoid interference from the lines between the items
-
-            byte[] commodityName = new byte[capturedItemHeight * commodityNameWidth * 4];
-            byte[] sellPrice = new byte[capturedItemHeight * sellPriceWidth * 4];
-            byte[] buyPrice = new byte[capturedItemHeight * buyPriceWidth * 4];
-            byte[] demand = new byte[capturedItemHeight * demandWidth * 4];
-            byte[] supply = new byte[capturedItemHeight * supplyWidth * 4];
-            byte[] galacticAverage = new byte[capturedItemHeight * galacticAverageWidth * 4];
+            byte[] commodityName = new byte[capturedItemHeight * itemCoordinates.CommodityNameWidth * 4];
+            byte[] sellPrice = new byte[capturedItemHeight * itemCoordinates.SellPriceWidth * 4];
+            byte[] buyPrice = new byte[capturedItemHeight * itemCoordinates.BuyPriceWidth * 4];
+            byte[] demand = new byte[capturedItemHeight * itemCoordinates.DemandWidth * 4];
+            byte[] supply = new byte[capturedItemHeight * itemCoordinates.SupplyWidth * 4];
+            byte[] galacticAverage = new byte[capturedItemHeight * itemCoordinates.GalacticAverageWidth * 4];
 
             List<CommodityItemBitmaps> items = new List<CommodityItemBitmaps>();
-            for (int i = 0; i < totalNumberOfRows; ++i)
+            for (int i = 0; i < itemCoordinates.TotalNumberOfRows; ++i)
             {
-                int thisItemY = firstItemY + (i * itemHeight);
+                int thisItemY = itemCoordinates.FirstItemY + (i * imageCoordinates.ItemHeight);
 
-                if (thisItemY < 240)
+                if (thisItemY < imageCoordinates.ItemTopThreshold)
                 {
                     continue; //The item is too high
                 }
-                if (thisItemY > 950)
+                if (thisItemY > imageCoordinates.ItemBottomThreshold)
                 {
                     continue; //The item is too low
                 }
@@ -243,65 +191,65 @@ namespace EliteTrader.EliteOcr
                 {
                     int row = y + thisItemY;
 
-                    if (row < 249)
+                    if (row < imageCoordinates.RowTopThreshold)
                     {
                         continue; //This row is too high
                     }
-                    if (row > 973)
+                    if (row > imageCoordinates.RowBottomThreshold)
                     {
                         break; //The rest of the rows are too low
                     }
 
-                    isHeaderItem = CaptureItemPart(y, thisItemY, rowLength, commodityNameWidth,
-                        commodityNameXOffset, screenshotBuffer, commodityName, true);
+                    isHeaderItem = CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.CommodityNameWidth,
+                        itemCoordinates.CommodityNameXOffset, screenshotBuffer, commodityName, true);
 
                     if (isHeaderItem)
                     {
                         break;
                     }
 
-                    CaptureItemPart(y, thisItemY, rowLength, sellPriceWidth,
-                        sellPriceXOffset, screenshotBuffer, sellPrice, false);
-                    CaptureItemPart(y, thisItemY, rowLength, buyPriceWidth,
-                        buyPriceXOffset, screenshotBuffer, buyPrice, false);
-                    CaptureItemPart(y, thisItemY, rowLength, supplyWidth,
-                        supplyXOffset, screenshotBuffer, supply, false);
-                    CaptureItemPart(y, thisItemY, rowLength, demandWidth,
-                        demandXOffset, screenshotBuffer, demand, false);
-                    CaptureItemPart(y, thisItemY, rowLength, galacticAverageWidth,
-                        galacticAverageXOffset, screenshotBuffer, galacticAverage, false);
+                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.SellPriceWidth,
+                        itemCoordinates.SellPriceXOffset, screenshotBuffer, sellPrice, false);
+                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.BuyPriceWidth,
+                        itemCoordinates.BuyPriceXOffset, screenshotBuffer, buyPrice, false);
+                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.SupplyWidth,
+                        itemCoordinates.SupplyXOffset, screenshotBuffer, supply, false);
+                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.DemandWidth,
+                        itemCoordinates.DemandXOffset, screenshotBuffer, demand, false);
+                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.GalacticAverageWidth,
+                        itemCoordinates.GalacticAverageXOffset, screenshotBuffer, galacticAverage, false);
                 }
 
                 if (isHeaderItem)
                 {
                     continue;
                 }
-                Bitmap nameBitmapOriginal = CreateBitmap(commodityNameWidth, capturedItemHeight, commodityName);
+                Bitmap nameBitmapOriginal = CreateBitmap(itemCoordinates.CommodityNameWidth, capturedItemHeight, commodityName);
                 Bitmap nameBitmapNoBackground = RemoveBackground(nameBitmapOriginal);
                 Bitmap nameBitmap = PostProcess(nameBitmapNoBackground);
                 Bitmap[] nameBitmapChars = null;
                 //Bitmap[] nameBitmapChars = SplitBitmap(nameBitmap);
-                Bitmap sellBitmapOriginal = CreateBitmap(sellPriceWidth, capturedItemHeight, sellPrice);
+                Bitmap sellBitmapOriginal = CreateBitmap(itemCoordinates.SellPriceWidth, capturedItemHeight, sellPrice);
                 Bitmap sellBitmapNoBackground = RemoveBackground(sellBitmapOriginal);
                 Bitmap sellBitmap = PostProcess(sellBitmapNoBackground);
                 Bitmap[] sellBitmapChars = null;
                 //Bitmap[] sellBitmapChars = SplitBitmap(sellBitmap);
-                Bitmap buyBitmapOriginal = CreateBitmap(buyPriceWidth, capturedItemHeight, buyPrice);
+                Bitmap buyBitmapOriginal = CreateBitmap(itemCoordinates.BuyPriceWidth, capturedItemHeight, buyPrice);
                 Bitmap buyBitmapNoBackground = RemoveBackground(buyBitmapOriginal);
                 Bitmap buyBitmap = PostProcess(buyBitmapNoBackground);
                 Bitmap[] buyBitmapChars = null;
                 //Bitmap[] buyBitmapChars = SplitBitmap(buyBitmap);
-                Bitmap supplyBitmapOriginal = CreateBitmap(supplyWidth, capturedItemHeight, supply);
+                Bitmap supplyBitmapOriginal = CreateBitmap(itemCoordinates.SupplyWidth, capturedItemHeight, supply);
                 Bitmap supplyBitmapNoBackground = RemoveBackground(supplyBitmapOriginal);
                 Bitmap supplyBitmap = PostProcess(supplyBitmapNoBackground);
                 Bitmap[] supplyBitmapChars = null;
                 //Bitmap[] supplyBitmapChars = SplitBitmap(supplyBitmap);
-                Bitmap demandBitmapOriginal = CreateBitmap(demandWidth, capturedItemHeight, demand);
+                Bitmap demandBitmapOriginal = CreateBitmap(itemCoordinates.DemandWidth, capturedItemHeight, demand);
                 Bitmap demandBitmapNoBackground = RemoveBackground(demandBitmapOriginal);
                 Bitmap demandBitmap = PostProcess(demandBitmapNoBackground);
                 Bitmap[] demandBitmapChars = null;
                 //Bitmap[] demandBitmapChars = SplitBitmap(demandBitmap);
-                Bitmap galacticAverageBitmapOriginal = CreateBitmap(galacticAverageWidth, capturedItemHeight, galacticAverage);
+                Bitmap galacticAverageBitmapOriginal = CreateBitmap(itemCoordinates.GalacticAverageWidth, capturedItemHeight, galacticAverage);
                 Bitmap galacticAverageBitmapNoBackground = RemoveBackground(galacticAverageBitmapOriginal);
                 Bitmap galacticAverageBitmap = PostProcess(galacticAverageBitmapNoBackground);
                 Bitmap[] galacticAverageBitmapChars = null;

@@ -420,9 +420,13 @@ namespace EliteTrader.EliteOcr.Tesseract
             StationEconomy primaryStationEconomyObject = GetStationEconomy(description, 0);
             EnumStationEconomy primaryStationEconomy = primaryStationEconomyObject.EconomyType;
             EnumStationEconomy? secondaryStationEconomy = null;
-            if (primaryStationEconomyObject.EconomyType != primaryStationEconomy)
+            if (primaryStationEconomy != EnumStationEconomy.Unknown)
             {
-                secondaryStationEconomy = GetStationEconomy(description, primaryStationEconomyObject.IndexInDescription).EconomyType;
+                EnumStationEconomy tmp = GetStationEconomy(description, primaryStationEconomyObject.IndexInDescription).EconomyType;
+                if (tmp != EnumStationEconomy.Unknown)
+                {
+                    secondaryStationEconomy = tmp;
+                }
             }
 
             EnumAllegiance allegiance = EnumAllegiance.Unknown;
@@ -472,7 +476,15 @@ namespace EliteTrader.EliteOcr.Tesseract
             {
                 government = EnumGovernment.Democracy;
             }
+            else if (description.Contains("oemocracy"))
+            {
+                government = EnumGovernment.Democracy;
+            }
             else if (description.Contains("dictatorship"))
+            {
+                government = EnumGovernment.Dictatorship;
+            }
+            else if (description.Contains("oictatorship"))
             {
                 government = EnumGovernment.Dictatorship;
             }
@@ -503,41 +515,50 @@ namespace EliteTrader.EliteOcr.Tesseract
         private static StationEconomy GetStationEconomy(string description, int searchFromIndex)
         {
             int stationEconomyIndex;
-            if ((stationEconomyIndex = description.IndexOf("agriculture", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string agriculture = "agriculture";
+            if ((stationEconomyIndex = description.IndexOf(agriculture, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.Agricultural, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.Agricultural, stationEconomyIndex + agriculture.Length);
             }
-            if ((stationEconomyIndex = description.IndexOf("industrial", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string industrial = "industrial";
+            if ((stationEconomyIndex = description.IndexOf(industrial, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.Industrial, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.Industrial, stationEconomyIndex + industrial.Length);
             }
-            if ((stationEconomyIndex = description.IndexOf("extraction", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string extraction = "extraction";
+            if ((stationEconomyIndex = description.IndexOf(extraction, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.Extraction, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.Extraction, stationEconomyIndex + extraction.Length);
             }
-            if ((stationEconomyIndex = description.IndexOf("tech", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string tech = "tech";
+            if ((stationEconomyIndex = description.IndexOf(tech, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.HighTech, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.HighTech, stationEconomyIndex + tech.Length);
             }
-            if ((stationEconomyIndex = description.IndexOf("military", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string military = "military";
+            if ((stationEconomyIndex = description.IndexOf(military, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.Millitary, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.Millitary, stationEconomyIndex + military.Length);
             }
-            if ((stationEconomyIndex = description.IndexOf("refinery", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string refinery = "refinery";
+            if ((stationEconomyIndex = description.IndexOf(refinery, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.Refinery, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.Refinery, stationEconomyIndex + refinery.Length);
             }
-            if ((stationEconomyIndex = description.IndexOf("service", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string service = "service";
+            if ((stationEconomyIndex = description.IndexOf(service, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.Service, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.Service, stationEconomyIndex + service.Length);
             }
-            if ((stationEconomyIndex = description.IndexOf("terraforming", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string terraforming = "terraforming";
+            if ((stationEconomyIndex = description.IndexOf(terraforming, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.Terraforming, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.Terraforming, stationEconomyIndex + terraforming.Length);
             }
-            if ((stationEconomyIndex = description.IndexOf("tourism", searchFromIndex, StringComparison.Ordinal)) >= 0)
+            const string tourism = "tourism";
+            if ((stationEconomyIndex = description.IndexOf(tourism, searchFromIndex, StringComparison.Ordinal)) >= 0)
             {
-                return new StationEconomy(EnumStationEconomy.Tourism, stationEconomyIndex);
+                return new StationEconomy(EnumStationEconomy.Tourism, stationEconomyIndex + tourism.Length);
             }
             return new StationEconomy(EnumStationEconomy.Unknown, -1);
         }
