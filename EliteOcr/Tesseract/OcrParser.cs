@@ -97,6 +97,11 @@ namespace EliteTrader.EliteOcr.Tesseract
 
         public static bool IsCommoditiesScreen(string clockStr)
         {
+            if (string.IsNullOrEmpty(clockStr))
+            {
+                return false;
+            }
+
             string[] split = clockStr.Split(':');
             if (split.Length != 3)
             {

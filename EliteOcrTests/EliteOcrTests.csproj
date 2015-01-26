@@ -79,6 +79,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Prepper.cs" />
+    <Compile Include="TestBaylissLanding.cs" />
     <Compile Include="TestClock.cs" />
     <Compile Include="TestCreateStaticData.cs" />
     <Compile Include="TestFortKlarix.cs" />
@@ -104,6 +105,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Screenshots\BaylissLanding\ef404df6-8a16-4c70-a2a2-a71e91e5c8cf_0.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\BaylissLanding\ef404df6-8a16-4c70-a2a2-a71e91e5c8cf_1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\BaylissLanding\ef404df6-8a16-4c70-a2a2-a71e91e5c8cf_2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\BaylissLanding\ef404df6-8a16-4c70-a2a2-a71e91e5c8cf_3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Screenshots\Clock\Screenshot_0000.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -309,6 +322,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

@@ -12,6 +12,7 @@ namespace EliteTrader.EliteOcr
     public static class ImageParser
     {
         private const int NumberOfInterestingPixelsThreshold = 25;
+        private static decimal[] _allowedAspectRatios = new[] {16m/9m};
 
         private static readonly Guid BmpRawTypeId = Guid.Parse("b96b3cab-0728-11d3-9d7b-0000f81ef32e");
 
@@ -26,9 +27,9 @@ namespace EliteTrader.EliteOcr
             {
                 throw new Exception(string.Format("The only supported resolution is 1920x1080 and above at the moment"));
             }
-            if (screenshotWidth/screenshotHeight != 16/9)
+            if (!_allowedAspectRatios.Contains((decimal)screenshotWidth / screenshotHeight))
             {
-                throw new Exception(string.Format("The only supported aspect ratio is 16:9 at the moment"));
+                throw new Exception(string.Format("The only supported aspect ratios are 16:9 and 16:10 at the moment"));
             }
 
             int clockAreaX = (screenshotWidth * 1705) / 1920;
@@ -54,9 +55,9 @@ namespace EliteTrader.EliteOcr
             {
                 throw new Exception(string.Format("The only supported resolution is 1920x1080 and above at the moment"));
             }
-            if (screenshotWidth / screenshotHeight != 16 / 9)
+            if (!_allowedAspectRatios.Contains((decimal)screenshotWidth/screenshotHeight))
             {
-                throw new Exception(string.Format("The only supported aspect ratio is 16:9 at the moment"));
+                throw new Exception(string.Format("The only supported aspect ratios are 16:9 and 16:10 at the moment"));
             }
 
             int nameAreaX = (screenshotWidth * 77) / 1920;
