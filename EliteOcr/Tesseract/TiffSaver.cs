@@ -33,20 +33,20 @@ namespace EliteTrader.EliteOcr.Tesseract
             }
         }
 
-        //public static void Save(string path, Bitmap bitmap)
-        //{
-        //    return;
+        public static void Save(string path, Bitmap bitmap)
+        {
+            //return;
 
-        //    if (bitmap == null)
-        //    {
-        //        return;
-        //    }
+            if (bitmap == null)
+            {
+                return;
+            }
 
-        //    ImageCodecInfo tiffEnc = ImageCodecInfo.GetImageEncoders().Single(a => a.Clsid == TiffClsid);
-        //    EncoderParameters encoderParameters = new EncoderParameters(1);
-        //    encoderParameters.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionNone);
-        //    bitmap.Save(string.Format(Path.Combine(path, string.Format(_pattern, _counter++))), tiffEnc, encoderParameters);
-        //}
+            ImageCodecInfo tiffEnc = ImageCodecInfo.GetImageEncoders().Single(a => a.Clsid == TiffClsid);
+            EncoderParameters encoderParameters = new EncoderParameters(1);
+            encoderParameters.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionNone);
+            bitmap.Save(string.Format(Path.Combine(path, string.Format(_pattern, _counter++))), tiffEnc, encoderParameters);
+        }
 
         public static void SaveScaled(string path, Bitmap[] bitmaps, int percentage)
         {
@@ -76,32 +76,32 @@ namespace EliteTrader.EliteOcr.Tesseract
             }
         }
 
-        public static void Save(string path, Bitmap bitmap)
-        {
-            //return;
+        //public static void Save(string path, Bitmap bitmap)
+        //{
+        //    //return;
 
-            if (bitmap == null)
-            {
-                return;
-            }
+        //    if (bitmap == null)
+        //    {
+        //        return;
+        //    }
 
-            ImageCodecInfo tiffEnc = ImageCodecInfo.GetImageEncoders().Single(a => a.Clsid == TiffClsid);
+        //    ImageCodecInfo tiffEnc = ImageCodecInfo.GetImageEncoders().Single(a => a.Clsid == TiffClsid);
 
-            if (_multipageTiff == null)
-            {
-                _multipageTiff = bitmap;
-                EncoderParameters encoderParameters = new EncoderParameters(2);
-                encoderParameters.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
-                encoderParameters.Param[1] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionNone);
-                _multipageTiff.Save(Path.Combine(path, string.Format(_pattern, 0)), tiffEnc, encoderParameters);
-            }
-            else
-            {
-                EncoderParameters encoderParameters = new EncoderParameters(1);
-                encoderParameters.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
-                _multipageTiff.SaveAdd(bitmap, encoderParameters);
-            }
-        }
+        //    if (_multipageTiff == null)
+        //    {
+        //        _multipageTiff = bitmap;
+        //        EncoderParameters encoderParameters = new EncoderParameters(2);
+        //        encoderParameters.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
+        //        encoderParameters.Param[1] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionNone);
+        //        _multipageTiff.Save(Path.Combine(path, string.Format(_pattern, 0)), tiffEnc, encoderParameters);
+        //    }
+        //    else
+        //    {
+        //        EncoderParameters encoderParameters = new EncoderParameters(1);
+        //        encoderParameters.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
+        //        _multipageTiff.SaveAdd(bitmap, encoderParameters);
+        //    }
+        //}
 
         public static void FlushTiff()
         {
