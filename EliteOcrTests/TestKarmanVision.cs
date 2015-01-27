@@ -38,6 +38,25 @@ namespace EliteOcrTests
             Compare(@"Screenshots\KarmanVision\combined.txt", actual);
         }
 
+        [TestMethod]
+        //[DeploymentItem(@"Screenshots\KarmanVision\max_fov.png", @"Screenshots\KarmanVision")]
+        [DeploymentItem(@"Screenshots\KarmanVision\Screenshot_0005.png", @"Screenshots\KarmanVision")]
+        public void TestMaxFov()
+        {
+            ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
+            List<Bitmap> bitmaps = new List<Bitmap>();
+            bitmaps.Add(new Bitmap(@"Screenshots\KarmanVision\Screenshot_0005.png"));
+            //bitmaps.Add(new Bitmap(@"Screenshots\KarmanVision\max_fov.png"));
+
+            ParsedScreenshot actual = screenshotParser.ParseMultiple(bitmaps);
+
+            //Console.WriteLine(actual);
+            //string str = Serialize(actual);
+            //Console.WriteLine(str);
+
+            //Compare(@"Screenshots\KarmanVision\combined.txt", actual);
+        }
+
         //[TestMethod]
         //[DeploymentItem(@"Screenshots\KarmanVision\720p_0000.png", @"Screenshots\KarmanVision")]
         //[DeploymentItem(@"Screenshots\KarmanVision\720p_0001.png", @"Screenshots\KarmanVision")]

@@ -89,6 +89,7 @@
     <Compile Include="TestMozhayskyGateway.cs" />
     <Compile Include="TestSchwarzschildPort.cs" />
     <Compile Include="TestScreenshotBase.cs" />
+    <Compile Include="TestWeynDock.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EliteOcr\EliteOcr.csproj">
@@ -240,6 +241,12 @@
     <Content Include="Screenshots\KarmanVision\combined.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Screenshots\KarmanVision\max_fov.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\KarmanVision\min_fov.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Screenshots\KarmanVision\Screenshot_0005.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -319,6 +326,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Screenshots\SchwarzschildPort\Screenshot_0005.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\WeynDock\ab81d0f6-f07b-44db-a1f2-7901bea20873_0.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\WeynDock\ab81d0f6-f07b-44db-a1f2-7901bea20873_1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\WeynDock\ab81d0f6-f07b-44db-a1f2-7901bea20873_2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\WeynDock\ab81d0f6-f07b-44db-a1f2-7901bea20873_3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
