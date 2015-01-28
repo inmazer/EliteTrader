@@ -19,13 +19,16 @@ namespace EliteTrader.EliteOcr
         {
             screenshot = ConvertToBmpBitmap(screenshot);
 
-            int screenshotWidth = screenshot.Width;
-            int screenshotHeight = screenshot.Height;
+            byte[] screenshotBuffer = GetScreenshotBuffer(screenshot);
 
+            ImageCoordinates imageCoordinates = GetImageCoordinates(screenshot.Width, screenshot.Height, screenshotBuffer);
 
-            ImageCoordinates imageCoordinates = ImageCoordinatesRepository.GetImageCoordinates(screenshotWidth, screenshotHeight);
+            return ParseClockInternal(screenshot, imageCoordinates);
+        }
 
-            Bitmap clockBitmap = GetArea(imageCoordinates.Clock, screenshot, EnumTextSharpeningAlgorithm.Time);
+        private static Bitmap ParseClockInternal(Bitmap screenshot, ImageCoordinates imageCoordinates)
+        {
+            Bitmap clockBitmap = GetArea(imageCoordinates.ClockRectangle, screenshot, EnumTextSharpeningAlgorithm.Time);
 
             return clockBitmap;
         }
@@ -34,20 +37,30 @@ namespace EliteTrader.EliteOcr
         {
             screenshot = ConvertToBmpBitmap(screenshot);
 
-            Bitmap clockBitmap = ParseClock(screenshot);
+            byte[] screenshotBuffer = GetScreenshotBuffer(screenshot);
 
-            int screenshotWidth = screenshot.Width;
-            int screenshotHeight = screenshot.Height;
+            ImageCoordinates imageCoordinates = GetImageCoordinates(screenshot.Width, screenshot.Height, screenshotBuffer);
 
-            ImageCoordinates imageCoordinates = ImageCoordinatesRepository.GetImageCoordinates(screenshotWidth, screenshotHeight);
+            Bitmap clockBitmap = ParseClockInternal(screenshot, imageCoordinates);
 
-            Bitmap nameBitmap = GetArea(imageCoordinates.Name, screenshot, EnumTextSharpeningAlgorithm.Title);
+            Bitmap nameBitmap = GetArea(imageCoordinates.NameRectangle, screenshot, EnumTextSharpeningAlgorithm.Title);
 
-            Bitmap descriptionBitmap = GetArea(imageCoordinates.Info, screenshot, EnumTextSharpeningAlgorithm.SubTitle);
+            Bitmap descriptionBitmap = GetArea(imageCoordinates.DescriptionRectangle, screenshot, EnumTextSharpeningAlgorithm.SubTitle);
 
-            List<CommodityItemBitmaps> itemBitmapsList = GetCommodityItemBitmaps(screenshot, imageCoordinates);
+            List<CommodityItemBitmaps> itemBitmapsList = GetCommodityItemBitmaps(screenshotBuffer, imageCoordinates);
 
             return new ParsedScreenshotBitmaps(clockBitmap, nameBitmap, descriptionBitmap, itemBitmapsList);
+        }
+
+        private static byte[] GetScreenshotBuffer(Bitmap screenshot)
+        {
+            byte[] screenshotBuffer = new byte[screenshot.Width * screenshot.Height * 4];
+
+            BitmapData screenshotData = screenshot.LockBits(new Rectangle(0, 0, screenshot.Width, screenshot.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(screenshotData.Scan0, screenshotBuffer, 0, screenshotBuffer.Length);
+            screenshot.UnlockBits(screenshotData);
+
+            return screenshotBuffer;
         }
 
         private static Bitmap ConvertToBmpBitmap(Bitmap bitmap)
@@ -71,326 +84,32 @@ namespace EliteTrader.EliteOcr
             return converted;
         }
 
-        private struct Xy
+        private static List<CommodityItemBitmaps> GetCommodityItemBitmaps(byte[] screenshotBuffer, ImageCoordinates imageCoordinates)
         {
-            private readonly int _x;
-            private readonly int _y;
+            int capturedItemHeight = (int)imageCoordinates.RowHeight - 10;
 
-            public int X { get { return _x; } }
-            public int Y { get { return _y; } }
+            byte[] commodityName = new byte[capturedItemHeight * imageCoordinates.CommodityNameWidth * 4];
+            byte[] sellPrice = new byte[capturedItemHeight * imageCoordinates.SellPriceWidth * 4];
+            byte[] buyPrice = new byte[capturedItemHeight * imageCoordinates.BuyPriceWidth * 4];
+            byte[] demand = new byte[capturedItemHeight * imageCoordinates.DemandWidth * 4];
+            byte[] supply = new byte[capturedItemHeight * imageCoordinates.SupplyWidth * 4];
+            byte[] galacticAverage = new byte[capturedItemHeight * imageCoordinates.GalacticAverageWidth * 4];
 
-            public Xy(int x, int y)
-            {
-                _x = x;
-                _y = y;
-            }
-        }
+            int rowLength = imageCoordinates.ScreenshotWidth * 4;
 
-        private static void GetLowerLineStart(int width, int height, byte[] screenshotBuffer)
-        {
-            int gridLeftX = -1;
-            int gridRightX = -1;
-            int gridLowerY = -1;
-            int clockX = -1;
-            int clockY = -1;
-            int stationNameLowerY = -1;
-
-            for (int y = height - 1; y >= 0; --y)
-            {
-                List<byte> adjustedRedSamples = new List<byte>();
-                for (int x = 0; x < width; ++x)
-                {
-                    int pixelBufferLocation = (y * width * 4) + (x * 4);
-
-                    byte red = screenshotBuffer[pixelBufferLocation + 2];
-                    //byte green = screenshotBuffer[pixelBufferLocation + 1];
-                    //byte blue = screenshotBuffer[pixelBufferLocation];
-
-                    //byte averageGreenBlue = Convert.ToByte(((int)green + blue) / 2); //Let the average of green and blue represent white light
-
-                    //red = (byte)Math.Max(red - averageGreenBlue, 0);
-                    adjustedRedSamples.Add(red);
-                }
-                adjustedRedSamples.Sort();
-
-                byte medianRed = adjustedRedSamples[adjustedRedSamples.Count / 2];
-
-                if (medianRed > 200)
-                {
-                    gridLowerY = y;
-
-                    int numberOfRedsSeenInARow = 0;
-                    for (int x = 0; x < width; ++x)
-                    {
-                        int pixelBufferLocation = (y * width * 4) + (x * 4);
-
-                        byte red = screenshotBuffer[pixelBufferLocation + 2];
-
-                        if (red > 230)
-                        {
-                            ++numberOfRedsSeenInARow;
-                        }
-                        else
-                        {
-                            numberOfRedsSeenInARow = 0;
-                        }
-                        if (numberOfRedsSeenInARow > 30)
-                        {
-                            gridLeftX = x - 30;
-                            break;
-                        }
-                    }
-
-                    if (gridLeftX == -1)
-                    {
-                        throw new Exception(string.Format("Unable to find gridLeftX"));
-                    }
-
-                    int numberOfNotRedSeenInARow = 0;
-                    for (int x = gridLeftX + 30; x < width; ++x)
-                    {
-                        int pixelBufferLocation = (y * width * 4) + (x * 4);
-
-                        byte red = screenshotBuffer[pixelBufferLocation + 2];
-                        if (red < 230)
-                        {
-                            ++numberOfNotRedSeenInARow;
-                        }
-                        else
-                        {
-                            numberOfNotRedSeenInARow = 0;
-                        }
-                        if (numberOfNotRedSeenInARow > 10)
-                        {
-                            gridRightX = x - 10;
-                            break;
-                        }
-                    }
-
-                    if (gridRightX == -1)
-                    {
-                        throw new Exception(string.Format("Unable to find gridRightX"));
-                    }
-
-                    numberOfRedsSeenInARow = 0;
-                    for (int x = width - 1; x > gridRightX + 10; --x)
-                    {
-                        int pixelBufferLocation = (y * width * 4) + (x * 4);
-
-                        byte red = screenshotBuffer[pixelBufferLocation + 2];
-
-                        if (red > 230)
-                        {
-                            ++numberOfRedsSeenInARow;
-                        }
-                        else
-                        {
-                            numberOfRedsSeenInARow = 0;
-                        }
-                        if (numberOfRedsSeenInARow > 30)
-                        {
-                            clockX = x + 30;
-                            break;
-                        }
-                    }
-
-                    if (clockX == -1)
-                    {
-                        throw new Exception(string.Format("Unable to find clockX"));
-                    }
-
-                    break;
-                }
-            }
-
-            if (gridLowerY == -1)
-            {
-                throw new Exception(string.Format("Unable to find gridLowerY"));
-            }
-
-            for (int y = 0; y < gridLowerY; ++y)
-            {
-                int numberOfWhitePixelsFound = 0;
-                for (int x = 0; x < gridRightX; ++x)
-                {
-                    int pixelBufferLocation = (y*width*4) + (x*4);
-
-                    byte red = screenshotBuffer[pixelBufferLocation + 2];
-                    byte green = screenshotBuffer[pixelBufferLocation + 1];
-                    byte blue = screenshotBuffer[pixelBufferLocation];
-
-
-                    int greyScale = (red + green + blue) / 3;
-
-                    if (greyScale > 130)
-                    {
-                        ++numberOfWhitePixelsFound;
-                    }
-
-                    //byte averageGreenBlue = Convert.ToByte(((int)green + blue) / 2); //Let the average of green and blue represent white light
-                }
-
-                if (numberOfWhitePixelsFound > 20)
-                {
-                    clockY = y;
-                    break;
-                }
-            }
-
-            if (clockY == -1)
-            {
-                throw new Exception(string.Format("Unable to find clockY"));
-            }
-
-            for (int y = clockY + 1; y < gridLowerY; ++y)
-            {
-                int numberOfWhitePixelsFound = 0;
-                for (int x = 0; x < gridRightX; ++x)
-                {
-                    int pixelBufferLocation = (y * width * 4) + (x * 4);
-
-                    byte red = screenshotBuffer[pixelBufferLocation + 2];
-                    byte green = screenshotBuffer[pixelBufferLocation + 1];
-                    byte blue = screenshotBuffer[pixelBufferLocation];
-
-
-                    int greyScale = (red + green + blue) / 3;
-
-                    if (greyScale > 130)
-                    {
-                        ++numberOfWhitePixelsFound;
-                    }
-
-                    //byte averageGreenBlue = Convert.ToByte(((int)green + blue) / 2); //Let the average of green and blue represent white light
-                }
-
-                if (numberOfWhitePixelsFound < 5)
-                {
-                    stationNameLowerY = y - 1;
-                    break;
-                }
-            }
-
-            if (stationNameLowerY == -1)
-            {
-                throw new Exception(string.Format("Unable to find stationNameLowerY"));
-            }
-        }
-
-        private static List<CommodityItemBitmaps> GetCommodityItemBitmaps(Bitmap screenshot, ImageCoordinates imageCoordinates)
-        {
-            byte[] screenshotBuffer = new byte[screenshot.Width * screenshot.Height * 4];
-
-            BitmapData screenshotData = screenshot.LockBits(new Rectangle(0, 0, screenshot.Width, screenshot.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            Marshal.Copy(screenshotData.Scan0, screenshotBuffer, 0, screenshotBuffer.Length);
-            screenshot.UnlockBits(screenshotData);
-
-            GetLowerLineStart(screenshot.Width, screenshot.Height, screenshotBuffer);
-
-
-
-            //Find row alignment by searching down using median pixel values from 420 - 1270, 600
-            int searchStartX = imageCoordinates.SearchStartX;
-            int searchEndX = imageCoordinates.SearchEndX;
-            int searchStartY = imageCoordinates.SearchStartY;
-            int numberOfPixelsPerLine = imageCoordinates.NumberOfPixelsPerSearchLine;
-
-            int middleRowStart = -1;
-            bool hasSeenBetweenRowPixel = false;
-            int rowLength = screenshot.Width * 4;
-            int startPixel = (searchStartY * rowLength) + (searchStartX * 4);
-            int endPixel = startPixel + (100 * rowLength); //Search 100 rows
-
-            //Console.WriteLine("Search start y: {0}", searchStartY);
-
-            for (int y = startPixel; y < endPixel; y += rowLength)
-            {
-                List<byte> adjustedRedSamples = new List<byte>();
-                //List<byte> averageGreen = new List<byte>();
-                //List<byte> averageBlue = new List<byte>();
-                int numberOfSkippedPixels = 0;
-                for (int x = y; x < y + (numberOfPixelsPerLine * 4); x += 4)
-                {
-                    //int realX = (x%rowLength)/4;
-                    //if ((realX >= (screenshot.Width*440)/1920 && realX <= (screenshot.Width*447)/1920) ||
-                    //    (realX >= (screenshot.Width*529)/1920 && realX <= (screenshot.Width*536)/1920) ||
-                    //    (realX >= (screenshot.Width*616)/1920 && realX <= (screenshot.Width*623)/1920) ||
-                    //    (realX >= (screenshot.Width*709)/1920 && realX <= (screenshot.Width*716)/1920) ||
-                    //    (realX >= (screenshot.Width*892)/1920 && realX <= (screenshot.Width*899)/1920) ||
-                    //    (realX >= (screenshot.Width*1094)/1920 && realX <= (screenshot.Width*1101)/1920))
-                    //{
-                    //    ++numberOfSkippedPixels;
-                    //    continue;
-                    //}
-
-                    byte red = screenshotBuffer[x + 2];
-                    byte green = screenshotBuffer[x + 1];
-                    byte blue = screenshotBuffer[x];
-
-                    byte averageGreenBlue = Convert.ToByte(((int)green + blue)/2); //Let the average of green and blue represent white light
-
-                    red = (byte)Math.Max(red - averageGreenBlue, 0);
-                    adjustedRedSamples.Add(red);
-                    //averageGreen.Add(screenshotBuffer[x + 1]);
-                    //averageBlue.Add(screenshotBuffer[x]);
-                }
-                //int adjustedNumberOfPixelsPerLine = numberOfPixelsPerLine - numberOfSkippedPixels;
-
-                adjustedRedSamples.Sort();
-                //averageGreen.Sort();
-                //averageBlue.Sort();
-
-                //averageRed = averageRed / adjustedNumberOfPixelsPerLine;
-                //averageGreen = averageGreen / adjustedNumberOfPixelsPerLine;
-                //averageBlue = averageBlue / adjustedNumberOfPixelsPerLine;
-
-                byte medianRed = adjustedRedSamples[adjustedRedSamples.Count/2];
-                //byte medianGreen = averageGreen[adjustedRedSamples.Count / 2];
-                //byte medianBlue = averageBlue[adjustedRedSamples.Count / 2];
-
-                //Console.WriteLine(medianRed);
-
-                //bool pixelIsInRow = averageRed >= 30 && averageBlue + averageGreen + averageRed >= 60;
-                //bool pixelIsInRow = medianRed >= 30 && medianGreen + medianBlue + medianRed >= 60;
-                bool pixelIsInRow = medianRed >= 10;
-                if (hasSeenBetweenRowPixel && pixelIsInRow)
-                {
-                    //This is the first pixel of a row
-                    middleRowStart = y / (screenshot.Width * 4);
-                    break;
-                }
-                if (!pixelIsInRow)
-                {
-                    hasSeenBetweenRowPixel = true;
-                }
-
-            }
-            if (middleRowStart < 0)
-            {
-                throw new Exception(string.Format("Unable to find row start"));
-            }
-
-            ItemCoordinates itemCoordinates = ImageCoordinatesRepository.GetItemCoordinates(middleRowStart, imageCoordinates);
-
-            int capturedItemHeight = imageCoordinates.CapturedItemHeight;
-
-            byte[] commodityName = new byte[capturedItemHeight * itemCoordinates.CommodityNameWidth * 4];
-            byte[] sellPrice = new byte[capturedItemHeight * itemCoordinates.SellPriceWidth * 4];
-            byte[] buyPrice = new byte[capturedItemHeight * itemCoordinates.BuyPriceWidth * 4];
-            byte[] demand = new byte[capturedItemHeight * itemCoordinates.DemandWidth * 4];
-            byte[] supply = new byte[capturedItemHeight * itemCoordinates.SupplyWidth * 4];
-            byte[] galacticAverage = new byte[capturedItemHeight * itemCoordinates.GalacticAverageWidth * 4];
+            int itemUpperLimit = imageCoordinates.GridUpperY;
+            int itemLowerLimit = (int)(imageCoordinates.GridLowerY - (3*(imageCoordinates.RowHeight/4)));
 
             List<CommodityItemBitmaps> items = new List<CommodityItemBitmaps>();
-            for (int i = 0; i < itemCoordinates.TotalNumberOfRows; ++i)
+            for (int i = 0; i < ImageCoordinates.TotalNumberOfRows; ++i)
             {
-                int thisItemY = itemCoordinates.FirstItemY + (i * imageCoordinates.ItemHeight);
+                int thisItemY = imageCoordinates.FirstItemY + (int)Math.Round(i * imageCoordinates.RowHeight, 0, MidpointRounding.AwayFromZero);
 
-                if (thisItemY < imageCoordinates.ItemTopThreshold)
+                if (thisItemY < itemUpperLimit)
                 {
                     continue; //The item is too high
                 }
-                if (thisItemY > imageCoordinates.ItemBottomThreshold)
+                if (thisItemY > itemLowerLimit)
                 {
                     continue; //The item is too low
                 }
@@ -410,56 +129,56 @@ namespace EliteTrader.EliteOcr
                         break; //The rest of the rows are too low
                     }
 
-                    isHeaderItem = CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.CommodityNameWidth,
-                        itemCoordinates.CommodityNameXOffset, screenshotBuffer, commodityName, true);
+                    isHeaderItem = CaptureItemPart(y, thisItemY, rowLength, imageCoordinates.CommodityNameWidth,
+                        imageCoordinates.CommodityItemNameStartX * 4, screenshotBuffer, commodityName, true);
 
                     if (isHeaderItem)
                     {
                         break;
                     }
 
-                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.SellPriceWidth,
-                        itemCoordinates.SellPriceXOffset, screenshotBuffer, sellPrice, false);
-                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.BuyPriceWidth,
-                        itemCoordinates.BuyPriceXOffset, screenshotBuffer, buyPrice, false);
-                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.SupplyWidth,
-                        itemCoordinates.SupplyXOffset, screenshotBuffer, supply, false);
-                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.DemandWidth,
-                        itemCoordinates.DemandXOffset, screenshotBuffer, demand, false);
-                    CaptureItemPart(y, thisItemY, rowLength, itemCoordinates.GalacticAverageWidth,
-                        itemCoordinates.GalacticAverageXOffset, screenshotBuffer, galacticAverage, false);
+                    CaptureItemPart(y, thisItemY, rowLength, imageCoordinates.SellPriceWidth,
+                        imageCoordinates.SellStartX * 4, screenshotBuffer, sellPrice, false);
+                    CaptureItemPart(y, thisItemY, rowLength, imageCoordinates.BuyPriceWidth,
+                        imageCoordinates.BuyStartX * 4, screenshotBuffer, buyPrice, false);
+                    CaptureItemPart(y, thisItemY, rowLength, imageCoordinates.SupplyWidth,
+                        imageCoordinates.SupplyStartX * 4, screenshotBuffer, supply, false);
+                    CaptureItemPart(y, thisItemY, rowLength, imageCoordinates.DemandWidth,
+                        imageCoordinates.DemandStartX * 4, screenshotBuffer, demand, false);
+                    CaptureItemPart(y, thisItemY, rowLength, imageCoordinates.GalacticAverageWidth,
+                        imageCoordinates.GalacticAverageStartX * 4, screenshotBuffer, galacticAverage, false);
                 }
 
                 if (isHeaderItem)
                 {
                     continue;
                 }
-                Bitmap nameBitmapOriginal = CreateBitmap(itemCoordinates.CommodityNameWidth, capturedItemHeight, commodityName);
+                Bitmap nameBitmapOriginal = CreateBitmap(imageCoordinates.CommodityNameWidth, capturedItemHeight, commodityName);
                 Bitmap nameBitmapNoBackground = RemoveBackground(nameBitmapOriginal);
                 Bitmap nameBitmap = PostProcess(nameBitmapNoBackground);
                 Bitmap[] nameBitmapChars = null;
                 //Bitmap[] nameBitmapChars = SplitBitmap(nameBitmap);
-                Bitmap sellBitmapOriginal = CreateBitmap(itemCoordinates.SellPriceWidth, capturedItemHeight, sellPrice);
+                Bitmap sellBitmapOriginal = CreateBitmap(imageCoordinates.SellPriceWidth, capturedItemHeight, sellPrice);
                 Bitmap sellBitmapNoBackground = RemoveBackground(sellBitmapOriginal);
                 Bitmap sellBitmap = PostProcess(sellBitmapNoBackground);
                 Bitmap[] sellBitmapChars = null;
                 //Bitmap[] sellBitmapChars = SplitBitmap(sellBitmap);
-                Bitmap buyBitmapOriginal = CreateBitmap(itemCoordinates.BuyPriceWidth, capturedItemHeight, buyPrice);
+                Bitmap buyBitmapOriginal = CreateBitmap(imageCoordinates.BuyPriceWidth, capturedItemHeight, buyPrice);
                 Bitmap buyBitmapNoBackground = RemoveBackground(buyBitmapOriginal);
                 Bitmap buyBitmap = PostProcess(buyBitmapNoBackground);
                 Bitmap[] buyBitmapChars = null;
                 //Bitmap[] buyBitmapChars = SplitBitmap(buyBitmap);
-                Bitmap supplyBitmapOriginal = CreateBitmap(itemCoordinates.SupplyWidth, capturedItemHeight, supply);
+                Bitmap supplyBitmapOriginal = CreateBitmap(imageCoordinates.SupplyWidth, capturedItemHeight, supply);
                 Bitmap supplyBitmapNoBackground = RemoveBackground(supplyBitmapOriginal);
                 Bitmap supplyBitmap = PostProcess(supplyBitmapNoBackground);
                 Bitmap[] supplyBitmapChars = null;
                 //Bitmap[] supplyBitmapChars = SplitBitmap(supplyBitmap);
-                Bitmap demandBitmapOriginal = CreateBitmap(itemCoordinates.DemandWidth, capturedItemHeight, demand);
+                Bitmap demandBitmapOriginal = CreateBitmap(imageCoordinates.DemandWidth, capturedItemHeight, demand);
                 Bitmap demandBitmapNoBackground = RemoveBackground(demandBitmapOriginal);
                 Bitmap demandBitmap = PostProcess(demandBitmapNoBackground);
                 Bitmap[] demandBitmapChars = null;
                 //Bitmap[] demandBitmapChars = SplitBitmap(demandBitmap);
-                Bitmap galacticAverageBitmapOriginal = CreateBitmap(itemCoordinates.GalacticAverageWidth, capturedItemHeight, galacticAverage);
+                Bitmap galacticAverageBitmapOriginal = CreateBitmap(imageCoordinates.GalacticAverageWidth, capturedItemHeight, galacticAverage);
                 Bitmap galacticAverageBitmapNoBackground = RemoveBackground(galacticAverageBitmapOriginal);
                 Bitmap galacticAverageBitmap = PostProcess(galacticAverageBitmapNoBackground);
                 Bitmap[] galacticAverageBitmapChars = null;
@@ -1010,6 +729,380 @@ namespace EliteTrader.EliteOcr
             }
 
             return characterBitmaps.ToArray();
+        }
+
+        private static ImageCoordinates GetImageCoordinates(int width, int height, byte[] screenshotBuffer)
+        {
+            int gridLeftX = -1;
+            int gridRightX = -1;
+            int gridLowerY = -1;
+            int gridUpperY = -1;
+            int clockRightX = -1;
+            int stationNameUpperY = -1;
+            int stationNameLowerY = -1;
+            int stationDescriptionUpperY = -1;
+            int stationDescriptionLowerY = -1;
+
+            for (int y = height - 1; y >= 0; --y)
+            {
+                List<byte> adjustedRedSamples = new List<byte>();
+                for (int x = 0; x < width / 3; ++x)
+                {
+                    int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                    byte red = screenshotBuffer[pixelBufferLocation + 2];
+
+                    adjustedRedSamples.Add(red);
+                }
+                adjustedRedSamples.Sort();
+
+                byte medianRed = adjustedRedSamples[adjustedRedSamples.Count / 2];
+
+                if (medianRed > 200)
+                {
+                    gridLowerY = y;
+
+                    int numberOfRedsSeenInARow = 0;
+                    for (int x = 0; x < width / 3; ++x)
+                    {
+                        int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                        byte red = screenshotBuffer[pixelBufferLocation + 2];
+
+                        if (red > 200)
+                        {
+                            ++numberOfRedsSeenInARow;
+                        }
+                        else
+                        {
+                            numberOfRedsSeenInARow = 0;
+                        }
+                        if (numberOfRedsSeenInARow > 30)
+                        {
+                            gridLeftX = x - 30;
+                            break;
+                        }
+                    }
+
+                    if (gridLeftX == -1)
+                    {
+                        throw new Exception(string.Format("Unable to find gridLeftX"));
+                    }
+
+                    int numberOfNotRedSeenInARow = 0;
+                    for (int x = gridLeftX + 30; x < width; ++x)
+                    {
+                        int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                        byte red = screenshotBuffer[pixelBufferLocation + 2];
+                        if (red < 200)
+                        {
+                            ++numberOfNotRedSeenInARow;
+                        }
+                        else
+                        {
+                            numberOfNotRedSeenInARow = 0;
+                        }
+                        if (numberOfNotRedSeenInARow > 10)
+                        {
+                            gridRightX = x - 10;
+                            break;
+                        }
+                    }
+
+                    if (gridRightX == -1)
+                    {
+                        throw new Exception(string.Format("Unable to find gridRightX"));
+                    }
+
+                    numberOfRedsSeenInARow = 0;
+                    for (int x = width - 1; x > gridRightX + 10; --x)
+                    {
+                        int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                        byte red = screenshotBuffer[pixelBufferLocation + 2];
+
+                        if (red > 200)
+                        {
+                            ++numberOfRedsSeenInARow;
+                        }
+                        else
+                        {
+                            numberOfRedsSeenInARow = 0;
+                        }
+                        if (numberOfRedsSeenInARow > 30)
+                        {
+                            clockRightX = x + 30;
+                            break;
+                        }
+                    }
+
+                    if (clockRightX == -1)
+                    {
+                        throw new Exception(string.Format("Unable to find clockRightX"));
+                    }
+
+                    break;
+                }
+            }
+
+            if (gridLowerY == -1)
+            {
+                throw new Exception(string.Format("Unable to find gridLowerY"));
+            }
+
+            for (int y = 0; y < gridLowerY; ++y)
+            {
+                int numberOfWhitePixelsFound = 0;
+                for (int x = gridLeftX; x < gridRightX; ++x)
+                {
+                    int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                    byte red = screenshotBuffer[pixelBufferLocation + 2];
+                    byte green = screenshotBuffer[pixelBufferLocation + 1];
+                    byte blue = screenshotBuffer[pixelBufferLocation];
+
+
+                    int greyScale = (red + green + blue) / 3;
+
+                    if (greyScale > 130)
+                    {
+                        ++numberOfWhitePixelsFound;
+                    }
+
+                    //byte averageGreenBlue = Convert.ToByte(((int)green + blue) / 2); //Let the average of green and blue represent white light
+                }
+
+                if (numberOfWhitePixelsFound > 50)
+                {
+                    stationNameUpperY = y;
+                    break;
+                }
+            }
+
+            if (stationNameUpperY == -1)
+            {
+                throw new Exception(string.Format("Unable to find stationNameUpperY"));
+            }
+
+            for (int y = stationNameUpperY + 1; y < gridLowerY; ++y)
+            {
+                int numberOfWhitePixelsFound = 0;
+                for (int x = gridLeftX; x < gridRightX; ++x)
+                {
+                    int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                    byte red = screenshotBuffer[pixelBufferLocation + 2];
+                    byte green = screenshotBuffer[pixelBufferLocation + 1];
+                    byte blue = screenshotBuffer[pixelBufferLocation];
+
+
+                    int greyScale = (red + green + blue) / 3;
+
+                    if (greyScale > 130)
+                    {
+                        ++numberOfWhitePixelsFound;
+                    }
+
+                    //byte averageGreenBlue = Convert.ToByte(((int)green + blue) / 2); //Let the average of green and blue represent white light
+                }
+
+                if (numberOfWhitePixelsFound < 5)
+                {
+                    stationNameLowerY = y - 1;
+                    break;
+                }
+            }
+
+            if (stationNameLowerY == -1)
+            {
+                throw new Exception(string.Format("Unable to find stationNameLowerY"));
+            }
+
+            for (int y = stationNameLowerY + 1; y < gridLowerY; ++y)
+            {
+                int numberOfRedPixelsFound = 0;
+                for (int x = gridLeftX; x < gridRightX; ++x)
+                {
+                    int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                    byte red = screenshotBuffer[pixelBufferLocation + 2];
+
+                    if (red > 200)
+                    {
+                        ++numberOfRedPixelsFound;
+                    }
+                }
+
+                if (numberOfRedPixelsFound > 40)
+                {
+                    stationDescriptionUpperY = y - 1;
+                    break;
+                }
+            }
+
+            if (stationDescriptionUpperY == -1)
+            {
+                throw new Exception(string.Format("Unable to find stationDescriptionUpperY"));
+            }
+
+            for (int y = stationDescriptionUpperY + 1; y < gridLowerY; ++y)
+            {
+                int numberOfRedPixelsFound = 0;
+                for (int x = gridLeftX; x < gridRightX; ++x)
+                {
+                    int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                    byte red = screenshotBuffer[pixelBufferLocation + 2];
+
+                    if (red > 200)
+                    {
+                        ++numberOfRedPixelsFound;
+                    }
+
+                }
+
+                if (numberOfRedPixelsFound < 20)
+                {
+                    stationDescriptionLowerY = y - 1;
+                    break;
+                }
+            }
+
+            if (stationDescriptionLowerY == -1)
+            {
+                throw new Exception(string.Format("Unable to find stationDescriptionLowerY"));
+            }
+
+            int firstLineY = -1;
+            for (int y = stationDescriptionLowerY + 1; y < gridLowerY; ++y)
+            {
+                bool foundNoneRedPixel = false;
+                for (int x = gridLeftX + 20; x < gridRightX - 50; ++x)
+                {
+                    int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                    byte red = screenshotBuffer[pixelBufferLocation + 2];
+
+                    if (red < 200)
+                    {
+                        foundNoneRedPixel = true;
+                        break;
+                    }
+                }
+
+                if (!foundNoneRedPixel)
+                {
+                    firstLineY = y;
+                    break;
+                }
+            }
+
+            if (firstLineY == -1)
+            {
+                throw new Exception(string.Format("Unable to find firstLineY"));
+            }
+
+            for (int y = firstLineY + 5; y < gridLowerY; ++y)
+            {
+                bool foundNoneRedPixel = false;
+                for (int x = gridLeftX + 20; x < gridRightX - 50; ++x)
+                {
+                    int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                    byte red = screenshotBuffer[pixelBufferLocation + 2];
+
+                    if (red < 200)
+                    {
+                        foundNoneRedPixel = true;
+                        break;
+                    }
+                }
+
+                if (!foundNoneRedPixel)
+                {
+                    gridUpperY = y;
+                    break;
+                }
+            }
+
+            if (gridUpperY == -1)
+            {
+                throw new Exception(string.Format("Unable to find gridUpperY"));
+            }
+
+            int gridHeight = gridLowerY - gridUpperY;
+            decimal rowHeight = (decimal)gridHeight / 18;
+
+            int gridWidth = gridRightX - gridLeftX;
+
+            var commodityItemNameStartX = gridLeftX + 2;
+            var commodityItemNameEndX = (int)(gridWidth * 0.296m) + gridLeftX - 2;
+            var sellStartX = commodityItemNameEndX + 7;
+            var sellEndX = (int)(gridWidth * 0.368m) + gridLeftX - 2;
+            var buyStartX = sellEndX + 7;
+            var buyEndX = (int)(gridWidth * 0.440m) + gridLeftX - 2;
+            var cargoStartX = buyEndX + 7;
+            var cargoEndX = (int)(gridWidth * 0.515m) + gridLeftX - 2;
+            var demandStartX = cargoEndX + 7;
+            var demandEndX = (int)(gridWidth * 0.665m) + gridLeftX - 2;
+            var supplyStartX = demandEndX + 7;
+            var supplyEndX = (int)(gridWidth * 0.830m) + gridLeftX - 2;
+            var galacticAverageStartX = supplyEndX + 7;
+            var galacticAverageEndX = (int)(gridWidth * 0.981m) + gridLeftX - 2;
+
+            //Find row alignment by searching down using median pixel values
+            int searchStartY = gridUpperY + (gridHeight / 2);
+
+            int middleRowStartY = -1;
+            bool hasSeenBetweenRowPixel = false;
+
+            //Console.WriteLine("Search start y: {0}", searchStartY);
+
+            for (int y = searchStartY; y < searchStartY + (rowHeight * 3); ++y)
+            {
+                List<byte> adjustedRedSamples = new List<byte>();
+                for (int x = gridLeftX; x < gridRightX; ++x)
+                {
+                    int pixelBufferLocation = (y * width * 4) + (x * 4);
+
+                    byte red = screenshotBuffer[pixelBufferLocation + 2];
+                    byte green = screenshotBuffer[pixelBufferLocation + 1];
+                    byte blue = screenshotBuffer[pixelBufferLocation];
+
+                    byte averageGreenBlue = Convert.ToByte(((int)green + blue) / 2); //Let the average of green and blue represent white light
+
+                    red = (byte)Math.Max(red - averageGreenBlue, 0);
+                    adjustedRedSamples.Add(red);
+                }
+
+                adjustedRedSamples.Sort();
+
+                byte medianRed = adjustedRedSamples[adjustedRedSamples.Count / 2];
+
+                bool pixelIsInRow = medianRed >= 10;
+                if (hasSeenBetweenRowPixel && pixelIsInRow)
+                {
+                    //This is the first pixel of a row
+                    middleRowStartY = y;
+                    break;
+                }
+                if (!pixelIsInRow)
+                {
+                    hasSeenBetweenRowPixel = true;
+                }
+            }
+
+            if (middleRowStartY < 0)
+            {
+                throw new Exception(string.Format("Unable to find row start"));
+            }
+
+            int numberOfItemsBelow = (int)((gridLowerY - middleRowStartY) / rowHeight) + 1;
+            int numberOfItemsAbove = ImageCoordinates.TotalNumberOfRows - numberOfItemsBelow;
+            int firstItemY = middleRowStartY - (int)(numberOfItemsAbove * rowHeight);
+
+            return new ImageCoordinates(width, height, gridLeftX, gridRightX, gridLowerY, gridUpperY, clockRightX - 8, stationNameUpperY - 5, stationNameLowerY + 5, stationDescriptionUpperY - 5, stationDescriptionLowerY + 5, commodityItemNameStartX, commodityItemNameEndX, sellStartX, sellEndX, buyStartX, buyEndX, cargoStartX, cargoEndX, demandStartX, demandEndX, supplyStartX, supplyEndX, galacticAverageStartX, galacticAverageEndX, firstItemY, rowHeight);
         }
     }
 }

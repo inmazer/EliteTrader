@@ -1,0 +1,178 @@
+{
+  "StationName": "KARMAN VISION",
+  "Description": {
+    "Wealth": "Normal",
+    "Population": "Large",
+    "PrimaryEconomy": "Industrial",
+    "SecondaryEconomy": "Extraction",
+    "Allegiance": "Empire",
+    "Government": "Patronage"
+  },
+  "Items": [
+    {
+      "Name": "Explosives",
+      "RareName": null,
+      "Sell": 458,
+      "Buy": null,
+      "Demand": 223065,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 378
+    },
+    {
+      "Name": "HydrogenFuel",
+      "RareName": null,
+      "Sell": 106,
+      "Buy": 111,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 105938,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 147
+    },
+    {
+      "Name": "Clothing",
+      "RareName": null,
+      "Sell": 240,
+      "Buy": 258,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 32992,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "ConsumerTechnology",
+      "RareName": null,
+      "Sell": 7532,
+      "Buy": null,
+      "Demand": 7554,
+      "DemandStatus": "High",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 7031
+    },
+    {
+      "Name": "DomesticAppliances",
+      "RareName": null,
+      "Sell": 437,
+      "Buy": 458,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 17917,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 631
+    },
+    {
+      "Name": "Algae",
+      "RareName": null,
+      "Sell": 195,
+      "Buy": null,
+      "Demand": 68388,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 200
+    },
+    {
+      "Name": "AnimalMeat",
+      "RareName": null,
+      "Sell": 1292,
+      "Buy": null,
+      "Demand": 3488,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1460
+    },
+    {
+      "Name": "Coffee",
+      "RareName": null,
+      "Sell": 1292,
+      "Buy": null,
+      "Demand": 1131,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1460
+    },
+    {
+      "Name": "Fish",
+      "RareName": null,
+      "Sell": 405,
+      "Buy": null,
+      "Demand": 10287,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 493
+    },
+    {
+      "Name": "FoodCartridges",
+      "RareName": null,
+      "Sell": 53,
+      "Buy": 69,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": 3931,
+      "SupplyStatus": "Medium",
+      "GalacticAverage": 206
+    },
+    {
+      "Name": "FruitandVegetables",
+      "RareName": null,
+      "Sell": 317,
+      "Buy": null,
+      "Demand": 4079,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 395
+    },
+    {
+      "Name": "Grain",
+      "RareName": null,
+      "Sell": 208,
+      "Buy": null,
+      "Demand": 23335,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 275
+    },
+    {
+      "Name": "Rare",
+      "RareName": "JAROUA RICE",
+      "Sell": 1157,
+      "Buy": 387,
+      "Demand": null,
+      "DemandStatus": "None",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 8169
+    },
+    {
+      "Name": "SyntheticMeat",
+      "RareName": null,
+      "Sell": 313,
+      "Buy": null,
+      "Demand": 5967,
+      "DemandStatus": "Medium",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 324
+    },
+    {
+      "Name": "Tea",
+      "RareName": null,
+      "Sell": 1466,
+      "Buy": null,
+      "Demand": 3223,
+      "DemandStatus": "Low",
+      "Supply": null,
+      "SupplyStatus": "None",
+      "GalacticAverage": 1646
+    }
+  ]
+}

@@ -80,7 +80,6 @@
     <Compile Include="Enums\EnumSupplyStatus.cs" />
     <Compile Include="Enums\EnumCommodityItemName.cs" />
     <Compile Include="ImageCoordinates.cs" />
-    <Compile Include="ImageCoordinatesRepository.cs" />
     <Compile Include="ImageParser.cs" />
     <Compile Include="Interfaces\ICommodityNameMatcher.cs" />
     <Compile Include="Interfaces\ICommodityNameRepository.cs" />

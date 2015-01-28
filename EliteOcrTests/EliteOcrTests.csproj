@@ -244,6 +244,9 @@
     <Content Include="Screenshots\KarmanVision\max_fov.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Screenshots\KarmanVision\max_fov.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Screenshots\KarmanVision\min_fov.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -338,6 +341,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Screenshots\WeynDock\ab81d0f6-f07b-44db-a1f2-7901bea20873_3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Screenshots\WeynDock\combined.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
