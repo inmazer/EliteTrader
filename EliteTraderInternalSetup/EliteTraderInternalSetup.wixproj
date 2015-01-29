@@ -48,6 +48,16 @@
     </WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DefineConstants>Debug;EliteTraderPrebuildPath=..\..\obj\prebuild\</DefineConstants>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DefineConstants>EliteTraderPrebuildPath=..\..\obj\prebuild\</DefineConstants>
+    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>echo CMD: remove prebuild
 if not exist "$(ProjectDir)obj" (mkdir "$(ProjectDir)obj")
@@ -70,10 +80,9 @@ del "$(ProjectDir)obj\prebuild\packages.config"
 del "$(ProjectDir)obj\prebuild\EliteTrader.csproj%2a"
 del "$(ProjectDir)obj\prebuild\tessdata\edl.user-words"
 del "$(ProjectDir)obj\prebuild\%2a.vshost.exe%2a"
-rmdir /s /q "$(ProjectDir)obj\prebuild\x64"
 
 echo CMD: heat.exe
-if "$(WIX)" == "" (set localWixPath="C:\Program Files (x86)\WiX Toolset v3.6\") else (set localWixPath="$(WIX)")
+if "$(WIX)" == "" (set localWixPath="C:\Program Files (x86)\WiX Toolset v3.9\") else (set localWixPath="$(WIX)")
 if "%25envWixPath%25" NEQ "" set localWixPath="%25envWixPath%25"
 if "%25WIX%25" NEQ "" set localWixPath="%25WIX%25"
 %25localWixPath%25bin\heat.exe dir "$(ProjectDir)obj\prebuild\\" -cg EliteTraderBinaries -ag -scom -sreg -sfrag -srd -dr EliteTrader -var "var.EliteTraderPrebuildPath" -out "$(ProjectDir)Fragments\EliteTraderBinaries.wxs"</PreBuildEvent>

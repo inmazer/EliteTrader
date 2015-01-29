@@ -5,8 +5,8 @@
   It's not enough to just include newer files.
   -->
   <?define MajorVersion="0" ?>
-  <?define MinorVersion="1" ?>
-  <?define BuildVersion="1" ?>
+  <?define MinorVersion="2" ?>
+  <?define BuildVersion="0" ?>
   <!-- Revision is NOT used by WiX in the upgrade procedure -->
   <?define Revision="0" ?>
   <!-- Full version number to display -->

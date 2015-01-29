@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using EliteTrader.EliteOcr;
+using EliteTrader.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EliteOcrTests
@@ -54,6 +55,24 @@ namespace EliteOcrTests
             //Console.WriteLine(str);
 
             Compare(@"Screenshots\KarmanVision\max_fov.txt", actual);
+        }
+
+        [TestMethod]
+        [DeploymentItem(@"Screenshots\KarmanVision\min_fov.png", @"Screenshots\KarmanVision")]
+        [DeploymentItem(@"Screenshots\KarmanVision\min_fov.txt", @"Screenshots\KarmanVision")]
+        public void TestMinFov()
+        {
+            ScreenshotParser screenshotParser = new ScreenshotParser(Environment.CurrentDirectory);
+            List<Bitmap> bitmaps = new List<Bitmap>();
+            bitmaps.Add(new Bitmap(@"Screenshots\KarmanVision\min_fov.png"));
+
+            ParsedScreenshot actual = screenshotParser.ParseMultiple(bitmaps);
+
+            //Console.WriteLine(actual);
+            //string str = Serialize(actual);
+            //Console.WriteLine(str);
+
+            Compare(@"Screenshots\KarmanVision\min_fov.txt", actual);
         }
 
         //[TestMethod]

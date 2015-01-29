@@ -250,6 +250,9 @@
     <Content Include="Screenshots\KarmanVision\min_fov.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Screenshots\KarmanVision\min_fov.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Screenshots\KarmanVision\Screenshot_0005.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

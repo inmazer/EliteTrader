@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using EliteTrader.EliteOcr;
 using EliteTrader.EliteOcr.Data;
 using EliteTrader.EliteOcr.Interfaces;
+using EliteTrader.Helpers;
 using EliteTrader.ProgressReporting;
 using ThruddClient;
 
@@ -187,7 +188,9 @@ namespace EliteTrader
                 {
                     try
                     {
-                        MegaClient.Upload(Settings, selectedPaths, dialogResult.Error);
+                        string version = RegistryHelper.GetVersion(Guid.Parse("7F04481C-8852-409E-A2CD-FE942422D05A"));
+
+                        MegaClient.Upload(Settings, selectedPaths, dialogResult.Error, version);
                         MessageBox.Show("Successfully uploaded image(s) to the developer");
                     }
                     catch (Exception e)

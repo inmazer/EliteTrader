@@ -10,7 +10,7 @@ namespace EliteTrader
 {
     public static class MegaClient
     {
-        public static void Upload(EliteTraderSettings settings, List<string> filePaths, Exception e)
+        public static void Upload(EliteTraderSettings settings, List<string> filePaths, Exception e, string version)
         {
             if (filePaths.Count == 0)
             {
@@ -26,13 +26,21 @@ namespace EliteTrader
             client.Login(auth);
             List<Node> nodes = client.GetNodes().ToList();
 
-            Node screenshotsFolder = nodes.SingleOrDefault(n => string.Equals(n.Name, folderName, StringComparison.InvariantCultureIgnoreCase));
+            Node root = nodes.Single(a => a.Type == NodeType.Root);
+            Node screenshotsFolder = nodes.SingleOrDefault(n => string.Equals(n.Name, folderName, StringComparison.InvariantCultureIgnoreCase) && n.ParentId == root.Id);
 
             if (screenshotsFolder == null)
             {
-                Node root = nodes.Single(a => a.Type == NodeType.Root);
                 screenshotsFolder = client.CreateFolder(folderName, root);
+                nodes.Add(screenshotsFolder);
             }
+
+            Node versionFolder = nodes.SingleOrDefault(n => string.Equals(n.Name, version, StringComparison.InvariantCultureIgnoreCase) && n.ParentId == screenshotsFolder.Id);
+            if (versionFolder == null)
+            {
+                versionFolder = client.CreateFolder(version, screenshotsFolder);
+            }
+
 
             string guid = Guid.NewGuid().ToString();
 
@@ -40,7 +48,9 @@ namespace EliteTrader
             using (MemoryStream mes = new MemoryStream())
             using (StreamWriter sw = new StreamWriter(mes))
             {
+                sw.WriteLine("Version: {0}", version);
                 sw.WriteLine(settings.Username);
+                sw.WriteLine("Number of screenshots: {0}", filePaths.Count);
                 sw.WriteLine();
                 if (e != null)
                 {
@@ -49,7 +59,7 @@ namespace EliteTrader
 
                 sw.Flush();
                 mes.Position = 0;
-                client.Upload(mes, settingsInfoFilename, screenshotsFolder);
+                client.Upload(mes, settingsInfoFilename, versionFolder);
             }
 
 
@@ -62,7 +72,7 @@ namespace EliteTrader
                 {
                     bitmap.Save(ms, ImageFormat.Png);
                     ms.Position = 0;
-                    client.Upload(ms, megaFilename, screenshotsFolder);
+                    client.Upload(ms, megaFilename, versionFolder);
                 }
             }
 
